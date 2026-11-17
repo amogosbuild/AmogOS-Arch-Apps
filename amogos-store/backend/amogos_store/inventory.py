@@ -1,12 +1,11 @@
 # Installed software is listed locally and remains available when online catalogs are unreachable.
-from . import apt_catalog, appimages, appimage_catalog, flatpak_local
+from . import pacman_catalog, appimages, appimage_catalog, flatpak_local
 from .network import cached
 from .runtime import StoreError
 
 
-def apt_items():
-    metadata=apt_catalog.component_metadata()
-    return [apt_catalog.normalize(p,p.installed,metadata.get(p.name.split(":",1)[0]),include_description=False) for p in apt_catalog.cache() if p.installed]
+def pacman_items():
+    return pacman_catalog.installed_items()
 
 
 def images():
@@ -25,7 +24,7 @@ def search(request):
     page=request.get("page",0)
     if type(page) is not int or not 0<=page<=1000000:
         raise StoreError("Invalid installed-software page.")
-    jobs={"deb":apt_items,"flatpak":lambda:flatpak_local.listing("system")+flatpak_local.listing("user"),"appimage":images}
+    jobs={"pacman":pacman_items,"flatpak":lambda:flatpak_local.listing("system")+flatpak_local.listing("user"),"appimage":images}
     if source!="all" and source not in jobs:
         raise StoreError("Choose a supported installed-software source.")
     query=str(request.get("query","")).strip().casefold()

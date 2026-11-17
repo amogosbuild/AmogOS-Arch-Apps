@@ -1,0 +1,10 @@
+# Flutter and native packaging outputs.
+.dart_tool/
+.flutter-plugins-dependencies
+build/
+dist/
+ephemeral/
+__pycache__/
+*.pyc
+*.pkg.tar.zst
+*.pkg.tar.zst.sig

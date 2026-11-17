@@ -29,6 +29,7 @@ def home():
         folder=pathlib.Path(directory)
         state=folder/".local/share/amogos-store"
         state.mkdir(parents=True)
+        stack.enter_context(patch("amogos_store.session_environment.display_available",return_value=True))
         stack.enter_context(patch.object(pathlib.Path,"home",return_value=folder))
         stack.enter_context(patch.object(appimages,"user_state",return_value=state))
         stack.enter_context(patch.object(appimage_launch,"user_state",return_value=state))
@@ -61,7 +62,7 @@ class AppImageIntegration(unittest.TestCase):
             self.assertEqual(binary.stat().st_mode & 0o777,0o755)
             self.assertEqual(desktop.stat().st_mode & 0o777,0o755)
             self.assertIn("Categories=AudioVideo;Video;",desktop.read_text())
-            self.assertIn("Exec=/usr/libexec/amogos-appimage-open 123",desktop.read_text())
+            self.assertIn("Exec=/usr/libexec/amogos-arch-appimage-open 123",desktop.read_text())
 
     def test_existing_install_is_repaired_offline_from_cached_category(self):
         with home() as (folder,state):

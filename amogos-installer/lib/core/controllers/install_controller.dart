@@ -16,7 +16,7 @@ class InstallController extends ChangeNotifier {
     'Location',
     'Keyboard',
     'Storage',
-    'Your account',
+    'First boot',
     'Review',
     'Install',
   ];
@@ -24,13 +24,9 @@ class InstallController extends ChangeNotifier {
   final darkTheme = ValueNotifier(false);
   bool get dark => darkTheme.value;
   set dark(bool value) => darkTheme.value = value;
-  bool busy = false, drivers = true, upgrade = false, autoLogin = false;
+  bool busy = false, upgrade = false;
   String locale = 'en_GB.UTF-8', timezone = 'Europe/London', keyboard = 'gb';
-  String fullName = '',
-      username = '',
-      hostname = 'amogos',
-      password = '',
-      passwordAgain = '';
+  String desktop = 'plasma';
   String? error;
   InstallMode mode = InstallMode.smart;
   Inventory? inventory;
@@ -52,12 +48,6 @@ class InstallController extends ChangeNotifier {
   bool get complete => event.done;
   double get progress => step < 6 ? step / 6 : event.progress;
   String get stageText => step == 6 ? event.message : steps[step];
-  bool get accountValid =>
-      fullName.trim().isNotEmpty &&
-      RegExp(r'^[a-z_][a-z0-9_-]{0,31}$').hasMatch(username) &&
-      RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9-]{0,62}$').hasMatch(hostname) &&
-      password.length >= 8 &&
-      password == passwordAgain;
   void change(VoidCallback update) {
     update();
     error = null;
@@ -110,8 +100,8 @@ class InstallController extends ChangeNotifier {
     'freeStart': freeStart,
     'manualRoot': manualRoot,
     'manualEsp': manualEsp,
-    'drivers': drivers,
     'upgrade': upgrade,
+    'desktop': desktop,
     'bootloader': bootloader,
     'bootPlacement': bootPlacement,
     'bootDisk': bootDisk ?? disk?.path,
@@ -125,13 +115,7 @@ class InstallController extends ChangeNotifier {
             disk!.blockedReason.isNotEmpty ||
             inventory?.live != true)) {
       change(
-        () => error = 'Choose an available installation drive from the live AmogOS 2 Pro session.',
-      );
-      return;
-    }
-    if (step == 4 && !accountValid) {
-      change(
-        () => error = 'Enter your name, a valid username and computer name, and matching passwords of at least 8 characters.',
+        () => error = 'Choose an available installation drive from the live AmogOS 2 Pro (Arch) session.',
       );
       return;
     }
@@ -155,7 +139,7 @@ class InstallController extends ChangeNotifier {
   }
 
   Future<void> begin(String confirmation) async {
-    if (proposal == null || !accountValid || busy || step != 5) return;
+    if (proposal == null || busy || step != 5) return;
     change(() {
       step = 6;
       events.clear();
@@ -164,13 +148,6 @@ class InstallController extends ChangeNotifier {
         .install({
           'token': proposal!.token,
           'confirmation': confirmation,
-          'account': {
-            'name': fullName.trim(),
-            'username': username,
-            'hostname': hostname,
-            'password': password,
-            'autoLogin': autoLogin,
-          },
           'locale': locale,
           'timezone': timezone,
           'keyboard': keyboard,
@@ -185,8 +162,6 @@ class InstallController extends ChangeNotifier {
               events.add(value);
             }
             if (value.done || value.error) {
-              password = '';
-              passwordAgain = '';
             }
             notifyListeners();
           },
@@ -197,8 +172,6 @@ class InstallController extends ChangeNotifier {
               e.toString(),
               error: true,
             );
-            password = '';
-            passwordAgain = '';
             notifyListeners();
           },
         );
@@ -208,8 +181,6 @@ class InstallController extends ChangeNotifier {
   void dispose() {
     _subscription?.cancel();
     darkTheme.dispose();
-    password = '';
-    passwordAgain = '';
     super.dispose();
   }
 }

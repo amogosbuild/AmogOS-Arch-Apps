@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+import os
+import pathlib
+import subprocess
+import time
+from state import ROOT, SDDM, SESSIONS, TEMP_HOME, TEMP_USER, account, atomic, autologin, command, read, record
+
+if os.geteuid()!=0:
+    raise SystemExit(1)
+handoff=read(ROOT/'handoff.json')
+if not handoff:
+    raise SystemExit(0)
+username=handoff['username']
+if not account(username) or handoff['desktop'] not in SESSIONS:
+    raise SystemExit('The installed user or desktop is unavailable.')
+session=SESSIONS[handoff['desktop']]
+atomic(pathlib.Path('/var/lib/sddm/state.conf'),f'[Last]\nUser={username}\nSession={session}\n',0o644)
+if handoff['autoLogin']:
+    autologin(username,handoff['desktop'],SDDM/'70-amogos-account.conf')
+else:
+    (SDDM/'70-amogos-account.conf').unlink(missing_ok=True)
+temporary=account(TEMP_USER)
+if temporary:
+    if temporary.pw_uid!=handoff.get('uid') or temporary.pw_dir!=TEMP_HOME:
+        raise SystemExit('The temporary account no longer matches the onboarding session.')
+    subprocess.run(['loginctl','terminate-user',str(temporary.pw_uid)],check=False)
+    for attempt in range(15):
+        result=subprocess.run(['pgrep','-u',str(temporary.pw_uid)],stdout=subprocess.DEVNULL,check=False)
+        if result.returncode!=0:
+            break
+        time.sleep(1)
+    command('userdel','--remove',TEMP_USER)
+(SDDM/'60-amogos-onboarding.conf').unlink(missing_ok=True)
+record(ROOT/'completed.json',{'username':handoff['username']})
+for name in ('pending.json','creating.json','handoff.json'):
+    (ROOT/name).unlink(missing_ok=True)
+if subprocess.run(['systemctl','is-active','--quiet','sddm.service'],check=False).returncode==0:
+    command('systemctl','--no-block','restart','sddm.service')

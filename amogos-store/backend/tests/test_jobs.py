@@ -42,13 +42,13 @@ class DurableJobs(unittest.TestCase):
     def test_review_is_checked_before_creating_a_job(self):
         with patch.object(runtime,"read_plan",side_effect=runtime.StoreError("Review expired")),patch.object(jobs,"directory") as directory:
             with self.assertRaisesRegex(runtime.StoreError,"Review expired"):
-                jobs.start("apt-apply",dict(token="a"*48))
+                jobs.start("pacman-apply",dict(token="a"*48))
         directory.assert_not_called()
 
     def test_finished_job_is_retained_and_receipt_does_not_expose_token(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=pathlib.Path(temporary)
-            previous=dict(source="deb",operation="install",id="hello",summary="Install hello")
+            previous=dict(source="pacman",operation="install",id="hello",summary="Install hello")
             def launched(key):
                 folder=jobs.ROOT/key
                 private=jobs.load(folder/"request.json")
@@ -57,7 +57,7 @@ class DurableJobs(unittest.TestCase):
                 state.update(status="completed",message="Finished",progress=1,done=True)
                 jobs.write_state(folder,state)
             with patch.object(jobs,"ROOT",root/"jobs"),patch.object(jobs,"OWNERS",root/"owners"),patch.object(runtime,"owner",return_value=0),patch.object(runtime,"read_plan",return_value=previous),patch.object(jobs,"launch_unit",side_effect=launched),contextlib.redirect_stdout(io.StringIO()) as output:
-                jobs.start("apt-apply",dict(token="secret-review"))
+                jobs.start("pacman-apply",dict(token="secret-review"))
                 rows=jobs.listing()["items"]
             self.assertEqual(rows[0]["status"],"completed")
             self.assertNotIn("secret-review",json.dumps(rows))

@@ -21,7 +21,7 @@ class StoragePage extends StatelessWidget {
         children: [
           const PageIntro(
             eyebrow: 'Room for a new beginning',
-            title: 'A home for AmogOS 2 Pro.',
+            title: 'A home for AmogOS 2 Pro (Arch).',
             description: 'Keep your existing systems, start fresh, or take the controls yourself.',
           ),
           Row(
@@ -54,7 +54,7 @@ class StoragePage extends StatelessWidget {
                   const Text('No installation drives are available.'),
                   const SizedBox(height: 8),
                   Text(
-                    'Boot the live AmogOS 2 Pro image and connect an unlocked installation drive.',
+                    'Boot the live AmogOS 2 Pro (Arch) image and connect an unlocked installation drive.',
                     style: TextStyle(color: colors.onSurfaceVariant),
                   ),
                 ],
@@ -287,7 +287,7 @@ class StoragePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Everything on ${d.path} will be permanently erased, including all existing operating systems and files. We’ll create new partitions for AmogOS 2 Pro.',
+                        'Everything on ${d.path} will be permanently erased, including all existing operating systems and files. We’ll create new partitions for AmogOS 2 Pro (Arch).',
                         style: TextStyle(fontSize: 12, color: colors.error),
                       ),
                     ] else ...[
@@ -297,7 +297,7 @@ class StoragePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Assign an existing partition for AmogOS 2 Pro, or create one in free space. Only the chosen root partition is formatted; existing EFI files are preserved.',
+                        'Assign an existing partition for AmogOS 2 Pro (Arch), or create one in free space. Only the chosen root partition is formatted; existing EFI files are preserved.',
                         style: TextStyle(
                           color: colors.onSurfaceVariant,
                           fontSize: 12,
@@ -308,7 +308,7 @@ class StoragePage extends StatelessWidget {
                         initialValue: c.manualRoot,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: 'AmogOS 2 Pro root partition (/)',
+                          labelText: 'AmogOS 2 Pro (Arch) root partition (/)',
                         ),
                         items: [
                           const DropdownMenuItem(
@@ -363,7 +363,7 @@ class StoragePage extends StatelessWidget {
                       Row(
                         children: [
                           const Text(
-                            'Space for AmogOS 2 Pro',
+                            'Space for AmogOS 2 Pro (Arch)',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
@@ -392,26 +392,38 @@ class StoragePage extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 18),
+            SurfaceCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Desktop environment', style: Theme.of(context).textTheme.titleMedium),
+                  for (final (id, name, subtitle) in const [
+                    ('plasma', 'KDE Plasma', 'Included on this ISO. Works offline.'),
+                    ('gnome', 'GNOME', 'Downloads GNOME and its dock over the network.'),
+                    ('lxqt', 'LXQt', 'Downloads LXQt and the Plank dock over the network.'),
+                  ])
+                    RadioListTile<String>(
+                      value: id,
+                      groupValue: c.desktop,
+                      onChanged: id == 'plasma' || c.inventory?.online == true
+                          ? (value) => c.change(() => c.desktop = value!)
+                          : null,
+                      title: Text(name),
+                      subtitle: Text(subtitle),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             BootloaderOptions(controller: c),
             const SizedBox(height: 18),
             SurfaceCard(
               child: Column(
                 children: [
-                  SwitchListTile(
+                  const ListTile(
                     contentPadding: EdgeInsets.zero,
-                    value: c.drivers,
-                    onChanged: (v) => c.change(() => c.drivers = v),
-                    title: const Text(
-                      'Set up recommended drivers',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Detect graphics, Wi-Fi, and firmware, including supported NVIDIA GPUs.',
-                      style: TextStyle(fontSize: 11),
-                    ),
+                    title: Text('Included drivers'),
+                    subtitle: Text('Zen kernel, graphics drivers and Wi-Fi firmware are installed with the system.'),
                   ),
                   for (final driver in c.inventory!.drivers)
                     Padding(

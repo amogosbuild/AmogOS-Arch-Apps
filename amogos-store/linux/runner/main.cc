@@ -1,4 +1,4 @@
-// Native AmogOS App Store window integration.
+// Native AmogOS Arch App Store window integration.
 #include "my_application.h"
 
 int main(int argc, char** argv) {

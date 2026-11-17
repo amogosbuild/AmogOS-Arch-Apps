@@ -219,7 +219,7 @@ class KeyboardPage extends StatelessWidget {
               const TextField(
                 decoration: InputDecoration(
                   labelText: 'Try your keyboard here',
-                  hintText: 'Hello, AmogOS 2 Pro! @ # £ €',
+                  hintText: 'Hello, AmogOS 2 Pro (Arch)! @ # £ €',
                   prefixIcon: Icon(Icons.edit_outlined),
                 ),
               ),
@@ -239,129 +239,21 @@ class KeyboardPage extends StatelessWidget {
   );
 }
 
-class AccountPage extends StatefulWidget {
-  const AccountPage({super.key, required this.controller});
-  final InstallController controller;
-  @override
-  State<AccountPage> createState() => _AccountPageState();
-}
+class FirstBootPage extends StatelessWidget {
+  const FirstBootPage({super.key});
 
-class _AccountPageState extends State<AccountPage> {
-  bool reveal = false;
   @override
-  Widget build(BuildContext context) {
-    final c = widget.controller;
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const PageIntro(
-            eyebrow: 'A place with your name on it',
-            title: 'Hello, you.',
-            description: 'Create your account and give this computer a name.',
-          ),
-          SurfaceCard(
-            child: Column(
-              children: [
-                AdaptiveFields(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: c.fullName,
-                        onChanged: (v) => c.change(() => c.fullName = v),
-                        textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Your name',
-                          hintText: 'Alex',
-                          prefixIcon: Icon(Icons.person_outline_rounded),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: c.username,
-                        onChanged: (v) => c.change(() => c.username = v),
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          hintText: 'alex',
-                          prefixIcon: Icon(Icons.alternate_email_rounded),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                TextFormField(
-                  initialValue: c.hostname,
-                  onChanged: (v) => c.change(() => c.hostname = v),
-                  decoration: const InputDecoration(
-                    labelText: 'Computer name',
-                    prefixIcon: Icon(Icons.computer_rounded),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                AdaptiveFields(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: c.password,
-                        onChanged: (v) => c.change(() => c.password = v),
-                        obscureText: !reveal,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          helperText: 'At least 8 characters',
-                          prefixIcon: const Icon(Icons.lock_outline_rounded),
-                          suffixIcon: IconButton(
-                            tooltip: reveal ? 'Hide password' : 'Show password',
-                            onPressed: () => setState(() => reveal = !reveal),
-                            icon: Icon(
-                              reveal
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: c.passwordAgain,
-                        onChanged: (v) => c.change(() => c.passwordAgain = v),
-                        obscureText: !reveal,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        decoration: const InputDecoration(
-                          labelText: 'Confirm password',
-                          helperText: 'Type it once more',
-                          prefixIcon: Icon(Icons.lock_outline_rounded),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text(
-                    'Log in automatically',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: const Text(
-                    'Otherwise, you’ll use your password when this computer starts.',
-                    style: TextStyle(fontSize: 11),
-                  ),
-                  value: c.autoLogin,
-                  onChanged: (v) => c.change(() => c.autoLogin = v),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Set up your desktop after restarting',
+            style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 16),
+        const Text('Choose a light or dark theme, create your account, and explore your new desktop.'),
+        const SizedBox(height: 12),
+        const Text('You can turn on automatic login during first-boot setup.'),
+      ],
+    ),
+  );
 }

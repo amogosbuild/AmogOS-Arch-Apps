@@ -141,9 +141,9 @@ def make_plan(disk, request, uefi, disks=None):
         boot["description"] = f"{name} on {target}"
         if uefi and bios:
             boot["description"] += f"; legacy boot on {boot['disk']} using {bios}"
-    descriptions.extend(["Copy AmogOS 2 Pro and configure your account", boot["description"]])
+    descriptions.extend(["Copy AmogOS 2 Pro (Arch) and configure your account", boot["description"]])
     extra = [dict(path=boot["external"]["path"], fingerprint=fingerprint(boot["external"]))] if boot["external"] else []
     confirmation = " + ".join(p.split("/")[-1] for p in [disk["path"]] + ([boot["disk"]] if extra else []))
     if request.get("upgrade"):
         descriptions.append("Refresh repositories, apply a full system upgrade and verify no package updates remain")
-    return dict(disk=disk["path"], root=root, esp=esp, bios=bios, newEsp=need_esp, uefi=uefi, rootBytes=root_bytes, steps=steps, operations=descriptions, warnings=warnings, preserved=preserved, mode=mode, table=table, fingerprint=fingerprint(disk), drivers=bool(request.get("drivers", True)), upgrade=bool(request.get("upgrade", False)), summary={"smart":"Install alongside existing systems", "erase":"Erase the selected drive and install AmogOS 2 Pro", "manual":"Install using your partition assignments"}[mode], bootloader=boot["loader"], bootDisk=boot["disk"], bootTable="gpt" if initialize and not extra else (boot["external"]["table"] if extra else table), bootDescription=boot["description"], bootTargets=extra, confirmation=confirmation)
+    return dict(disk=disk["path"], root=root, esp=esp, bios=bios, newEsp=need_esp, uefi=uefi, rootBytes=root_bytes, steps=steps, operations=descriptions, warnings=warnings, preserved=preserved, mode=mode, table=table, fingerprint=fingerprint(disk), drivers=bool(request.get("drivers", True)), upgrade=bool(request.get("upgrade", False)), summary={"smart":"Install alongside existing systems", "erase":"Erase the selected drive and install AmogOS 2 Pro (Arch)", "manual":"Install using your partition assignments"}[mode], bootloader=boot["loader"], bootDisk=boot["disk"], bootTable="gpt" if initialize and not extra else (boot["external"]["table"] if extra else table), bootDescription=boot["description"], bootTargets=extra, confirmation=confirmation)

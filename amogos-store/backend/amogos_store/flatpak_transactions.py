@@ -16,7 +16,7 @@ def remotes(scope="system"):
 
 def check_remote(scope="system",origin="flathub",official=True):
     if not shutil.which("flatpak"):
-        raise StoreError("Flatpak needs to be installed before you can install Flatpak apps. Install Flatpak from APT in Sources.")
+        raise StoreError("Flatpak needs to be installed before you can install Flatpak apps. Install Flatpak from Pacman in Sources.")
     remote=next((r for r in remotes(scope) if r["id"]==origin),None)
     if not remote or not remote["enabled"]:
         raise StoreError("Enable "+origin+" in the "+scope+" Flatpak installation before continuing.")

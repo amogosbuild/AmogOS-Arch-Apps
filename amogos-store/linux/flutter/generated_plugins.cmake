@@ -1,4 +1,7 @@
-# Native build configuration for AmogOS App Store.
+#
+# Generated file, do not edit.
+#
+
 list(APPEND FLUTTER_PLUGIN_LIST
 )
 

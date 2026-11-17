@@ -40,5 +40,5 @@ def start(key, path):
             command,env=prepare(path,env,logpath)
             continue
         missing=re.search(r"error while loading shared libraries:\s*([^\s:]+)",details)
-        explanation=("The publisher's AppImage is missing the required library "+missing.group(1)+". Choose another AppImage build or use the APT/Flatpak version.\n") if missing else ""
+        explanation=("The publisher's AppImage is missing the required library "+missing.group(1)+". Choose another AppImage build or use the Pacman/Flatpak version.\n") if missing else ""
         raise StoreError(explanation+"The AppImage exited before opening (code "+str(code)+"). "+(details[-3000:] or "The publisher did not provide an error message.")+"\nLaunch log: "+str(logpath))

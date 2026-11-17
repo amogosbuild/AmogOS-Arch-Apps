@@ -1,0 +1,8 @@
+# Make the installed Steam client available from the desktop folder.
+[Desktop Entry]
+Type=Application
+Name=Steam
+Exec=steam
+Icon=steam
+Terminal=false
+Categories=Game;

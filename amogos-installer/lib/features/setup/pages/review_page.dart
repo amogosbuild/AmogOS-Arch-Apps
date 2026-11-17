@@ -30,7 +30,7 @@ class ReviewPage extends StatelessWidget {
                   icon: Icons.storage_rounded,
                   title: p?.summary ?? 'Installation plan',
                   detail:
-                      '${c.disk?.model} · ${p?.disk} · ${formatBytes(p?.rootBytes ?? 0)} for AmogOS 2 Pro',
+                      '${c.disk?.model} · ${p?.disk} · ${formatBytes(p?.rootBytes ?? 0)} for AmogOS 2 Pro (Arch)',
                 ),
                 if (p != null) ...[
                   const Divider(height: 24),
@@ -96,9 +96,8 @@ class ReviewPage extends StatelessWidget {
               children: [
                 InfoLine(
                   icon: Icons.person_outline_rounded,
-                  title: c.fullName,
-                  detail:
-                      '${c.username} on ${c.hostname} · ${c.autoLogin ? 'Automatic login' : 'Password protected'}',
+                  title: 'Set up your account after restarting',
+                  detail: 'Theme, account, automatic login and desktop tour',
                 ),
                 const Divider(height: 16),
                 InfoLine(
@@ -109,9 +108,7 @@ class ReviewPage extends StatelessWidget {
                 const Divider(height: 16),
                 InfoLine(
                   icon: Icons.memory_rounded,
-                  title: c.drivers
-                      ? 'Recommended hardware support'
-                      : 'Keep the included drivers',
+                  title: 'Included hardware support',
                   detail: c.upgrade
                       ? 'Full system upgrade, verified before installation completes'
                       : 'Install the included system without a full package upgrade',
@@ -186,7 +183,7 @@ Future<void> confirmInstallation(
                 ? () => Navigator.pop(context, true)
                 : null,
             child: Text(
-              controller.preview ? 'Start preview' : 'Install AmogOS 2 Pro',
+              controller.preview ? 'Start preview' : 'Install AmogOS 2 Pro (Arch)',
             ),
           ),
         ],

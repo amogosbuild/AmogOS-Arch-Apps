@@ -1,0 +1,11 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Id": "org.amogosarch.desktop",
+    "Name": "AmogOS Arch",
+    "Description": "AmogOS Arch desktop, centered task icons and Amogus menu",
+    "Version": "1.0",
+    "License": "GPL-2.0-or-later",
+    "Authors": [{"Name": "AmogOS"}]
+  }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+import os
+import sys
+from state import ROOT, SDDM, SESSIONS, TEMP_HOME, TEMP_USER, account, autologin, command, record
+
+if os.geteuid()!=0 or len(sys.argv)!=2 or sys.argv[1] not in SESSIONS:
+    raise SystemExit('The installer must supply a supported desktop.')
+if (ROOT/'pending.json').exists() or (ROOT/'completed.json').exists() or account(TEMP_USER):
+    raise SystemExit('Onboarding has already been initialized.')
+ROOT.mkdir(mode=0o700,exist_ok=True)
+command('useradd','--create-home','--home-dir',TEMP_HOME,'--shell','/bin/bash','--comment','AmogOS Setup',TEMP_USER)
+created=account(TEMP_USER)
+record(ROOT/'pending.json',{'uid':created.pw_uid,'desktop':sys.argv[1]})
+autologin(TEMP_USER,'plasma',SDDM/'60-amogos-onboarding.conf')

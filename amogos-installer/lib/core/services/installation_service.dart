@@ -10,7 +10,7 @@ class InstallationService {
   final bool preview;
 
   Future<Process> _start(String action) =>
-      Process.start('pkexec', ['/usr/libexec/amogos-installer-helper', action]);
+      Process.start('pkexec', ['/usr/libexec/amogos-arch-installer-helper', action]);
 
   Future<String> _errors(Stream<List<int>> stream) =>
       stream.transform(utf8.decoder).fold<String>('', (tail, chunk) {
@@ -55,16 +55,16 @@ class InstallationService {
       token: 'preview-plan',
       disk: body['disk'],
       summary: body['mode'] == 'erase'
-          ? 'Replace the selected drive with AmogOS 2 Pro'
+          ? 'Replace the selected drive with AmogOS 2 Pro (Arch)'
           : body['mode'] == 'manual'
           ? 'Install using your selected partitions'
-          : 'Install AmogOS 2 Pro alongside your existing systems',
+          : 'Install AmogOS 2 Pro (Arch) alongside your existing systems',
       operations: [
         if (body['mode'] == 'erase')
           'Erase the selected drive and create a GPT partition table'
         else
           'Keep Windows Boot Manager and Debian unchanged',
-        'Prepare ${formatBytes(body['rootBytes'])} for AmogOS 2 Pro',
+        'Prepare ${formatBytes(body['rootBytes'])} for AmogOS 2 Pro (Arch)',
         'Copy the system and configure your account',
         body['bootloader'] == 'none'
             ? 'Keep your existing bootloader for manual configuration'
@@ -92,7 +92,7 @@ class InstallationService {
       final stages = [
         ('prepare', 'Preparing your new home'),
         ('partition', 'Preparing the selected partitions'),
-        ('copy', 'Unpacking AmogOS 2 Pro'),
+        ('copy', 'Unpacking AmogOS 2 Pro (Arch)'),
         ('configure', 'Making it yours'),
         ('drivers', 'Setting up hardware support'),
         ('bootloader', 'Adding your boot menu'),

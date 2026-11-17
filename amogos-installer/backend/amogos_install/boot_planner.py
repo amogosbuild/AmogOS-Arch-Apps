@@ -11,7 +11,7 @@ def select_boot(disk, request, uefi, disks, initialize):
     if loader == "systemd-boot" and not uefi:
         raise InstallError("systemd-boot requires UEFI. Choose GRUB for a legacy BIOS installation.")
     if loader == "none":
-        return dict(loader=loader, disk=disk["path"], esp=None, bios=None, needEsp=False, needBios=False, espBytes=0, external=None, description="Keep your existing bootloader; add AmogOS 2 Pro manually", warnings=["No bootloader or firmware entry will be installed. Add the installed kernel and root filesystem to your existing bootloader before restarting."])
+        return dict(loader=loader, disk=disk["path"], esp=None, bios=None, needEsp=False, needBios=False, espBytes=0, external=None, description="Keep your existing bootloader; add AmogOS 2 Pro (Arch) manually", warnings=["No bootloader or firmware entry will be installed. Add the installed kernel and root filesystem to your existing bootloader before restarting."])
     path = request.get("bootDisk") if placement == "custom" else disk["path"]
     target = next((d for d in disks if d["path"] == path), None)
     if not target:

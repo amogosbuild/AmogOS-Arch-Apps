@@ -26,7 +26,7 @@ class Boundaries(unittest.TestCase):
             with self.assertRaises(StoreError):runtime.package_name(value)
         for value in ["--help","org.foo.Bar/../../x","org.foo.Bar;reboot","x y"]:
             with self.assertRaises(StoreError):runtime.app_id(value)
-        self.assertEqual(runtime.package_name("libgtk-3-0t64:amd64"),"libgtk-3-0t64:amd64")
+        self.assertEqual(runtime.package_name("lib32-gtk3"),"lib32-gtk3")
         self.assertEqual(runtime.app_id("com.thebrokenrail.MCPIReborn"),"com.thebrokenrail.MCPIReborn")
 
     def test_private_addresses_and_insecure_redirect_targets_are_rejected(self):
@@ -58,19 +58,19 @@ class Boundaries(unittest.TestCase):
 
     def test_review_tokens_are_owner_bound_single_use_and_expire(self):
         with tempfile.TemporaryDirectory() as folder,patch.object(runtime,"PLAN_DIRECTORY",pathlib.Path(folder)),patch.object(runtime,"require_root"),patch.object(runtime,"owner",return_value=1001):
-            p=runtime.save_plan(dict(source="deb",changes=[]))
+            p=runtime.save_plan(dict(source="pacman",changes=[]))
             path=pathlib.Path(folder)/(p["token"]+".json")
             self.assertEqual(path.stat().st_mode & 0o777,0o600)
             with patch.object(runtime,"owner",return_value=1002):
-                with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"deb")
+                with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"pacman")
             self.assertTrue(path.is_file())
-            runtime.consume_plan(p["token"],"deb")
-            with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"deb")
-            p=runtime.save_plan(dict(source="deb",changes=[]))
+            runtime.consume_plan(p["token"],"pacman")
+            with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"pacman")
+            p=runtime.save_plan(dict(source="pacman",changes=[]))
             path=pathlib.Path(folder)/(p["token"]+".json")
             value=json.loads(path.read_text());value["expires"]=time.time()-1;path.write_text(json.dumps(value))
-            with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"deb")
-            with self.assertRaises(StoreError):runtime.consume_plan("../../passwd","deb")
+            with self.assertRaises(StoreError):runtime.consume_plan(p["token"],"pacman")
+            with self.assertRaises(StoreError):runtime.consume_plan("../../passwd","pacman")
 
     def test_progress_is_real_and_silent_subprocesses_have_a_timeout(self):
         output=io.StringIO()

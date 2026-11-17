@@ -36,7 +36,7 @@ class BootloaderOptions extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           Text(
-            'Choose how AmogOS 2 Pro starts, and where its boot files belong.',
+            'Choose how AmogOS 2 Pro (Arch) starts, and where its boot files belong.',
             style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
           ),
           const SizedBox(height: 18),
@@ -85,7 +85,7 @@ class BootloaderOptions extends StatelessWidget {
           const SizedBox(height: 15),
           if (c.bootloader == 'none')
             Text(
-              'AmogOS 2 Pro will be installed without writing a bootloader or firmware entry. Add it to your existing boot menu before restarting.',
+              'AmogOS 2 Pro (Arch) will be installed without writing a bootloader or firmware entry. Add it to your existing boot menu before restarting.',
               style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
             )
           else ...[

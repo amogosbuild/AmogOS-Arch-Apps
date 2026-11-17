@@ -1,0 +1,16 @@
+# Rounded translucent dock background for LXQt.
+[PlankTheme]
+TopRoundness=22
+BottomRoundness=22
+LineWidth=1
+OuterStrokeColor=89;;155;;177;;200
+FillStartColor=13;;33;;46;;225
+FillEndColor=20;;44;;58;;225
+InnerStrokeColor=179;;228;;241;;50
+
+[PlankDockTheme]
+HorizPadding=8
+TopPadding=6
+BottomPadding=6
+ItemPadding=4
+FadeOpacity=1

@@ -42,7 +42,7 @@ class InstallPage extends StatelessWidget {
                   SelectableText(c.event.message),
                   const SizedBox(height: 18),
                   const Text(
-                    'The installation log is saved in /var/log/amogos-installer/. Keep this live session open to investigate before restarting.',
+                    'The installation log is saved in /var/log/amogos-arch-installer/. Keep this live session open to investigate before restarting.',
                   ),
                 ],
               ),
@@ -106,7 +106,7 @@ class InstallPage extends StatelessWidget {
                                 for (final stage in [
                                   ('prepare', 'Getting ready'),
                                   ('partition', 'Preparing storage'),
-                                  ('copy', 'Copying AmogOS 2 Pro'),
+                                  ('copy', 'Copying AmogOS 2 Pro (Arch)'),
                                   ('configure', 'Your preferences'),
                                   ('drivers', 'Hardware support'),
                                   ('updates', 'System updates'),
@@ -199,7 +199,7 @@ class InstallPage extends StatelessWidget {
         Text(
           controller.preview
               ? 'Your games, music, and setup flow are ready to explore. No disks were changed.'
-              : 'AmogOS 2 Pro is installed. Your next chapter is a restart away.',
+              : 'AmogOS 2 Pro (Arch) is installed. Your next chapter is a restart away.',
           style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),

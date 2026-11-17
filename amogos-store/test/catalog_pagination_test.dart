@@ -1,4 +1,4 @@
-// Failed catalog requests keep the last successful page so retrying cannot skip APT packages.
+// Failed catalog requests keep the last successful page so retrying cannot skip Pacman packages.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amogos_store/core/controllers/store_controller.dart';
 import 'package:amogos_store/core/services/store_service.dart';
@@ -22,16 +22,16 @@ class PagedCatalog extends StoreService {
     return {
       'items': [
         for (var i = 0; i < 24; i++)
-          {'id': 'package-${page * 24 + i}', 'source': 'deb', 'repo': 'main'},
+          {'id': 'package-${page * 24 + i}', 'source': 'pacman', 'repo': 'main'},
       ],
       'warnings': [],
-      'totals': {'deb': 70000},
+      'totals': {'pacman': 70000},
     };
   }
 }
 
 void main() {
-  test('APT load more retries the same page after a failed request', () async {
+  test('Pacman load more retries the same page after a failed request', () async {
     final service = PagedCatalog();
     final controller = StoreController(service: service);
     await controller.loadCatalog();

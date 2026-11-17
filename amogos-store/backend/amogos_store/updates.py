@@ -1,7 +1,7 @@
 # Update sources fail independently and managed AppImages are compared with their reviewed publisher build.
 import concurrent.futures
 import re
-from . import apt_transactions,appimage_catalog,appimages,flatpak_transactions
+from . import pacman_transactions,appimage_catalog,appimages,flatpak_transactions
 
 
 def image_updates():
@@ -35,7 +35,7 @@ def image_updates():
 
 def get():
     result=dict(system=dict(items=[]),flatpak=[],appimage=[],warnings=[])
-    jobs={"system":apt_transactions.updates,"flatpak":flatpak_transactions.updates,"appimage":image_updates}
+    jobs={"system":pacman_transactions.updates,"flatpak":flatpak_transactions.updates,"appimage":image_updates}
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
         tasks={pool.submit(call):key for key,call in jobs.items()}
         for task in concurrent.futures.as_completed(tasks):
@@ -47,5 +47,5 @@ def get():
                     result["warnings"].extend(warnings)
                 else:result[key]=value
             except Exception as error:
-                result["warnings"].append(dict(source="deb" if key=="system" else key,message=str(error)))
+                result["warnings"].append(dict(source="pacman" if key=="system" else key,message=str(error)))
     return result

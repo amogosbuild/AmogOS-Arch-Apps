@@ -11,9 +11,9 @@ import errno
 from . import runtime
 from .runtime import StoreError
 
-ROOT=pathlib.Path("/var/lib/amogos-store/jobs")
-OWNERS=pathlib.Path("/var/lib/amogos-store/owners")
-ACTIONS={"apt-apply","flatpak-apply","refresh"}
+ROOT=pathlib.Path("/var/lib/amogos-arch-store/jobs")
+OWNERS=pathlib.Path("/var/lib/amogos-arch-store/owners")
+ACTIONS={"pacman-apply","flatpak-apply","refresh"}
 
 
 def identity(value):
@@ -23,7 +23,7 @@ def identity(value):
 
 
 def unit(key):
-    return "amogos-store-"+identity(key)+".service"
+    return "amogos-arch-store-"+identity(key)+".service"
 
 
 def directory(path,mode=0o700,repair_legacy=False):
@@ -94,9 +94,9 @@ def start(action,request):
         raise StoreError("Unsupported background transaction.")
     uid=runtime.owner()
     if action=="refresh":
-        previous=dict(source="refresh",operation="refresh",id="",summary="Refresh APT indexes")
+        previous=dict(source="refresh",operation="refresh",id="",summary="Refresh Pacman indexes")
     else:
-        previous=runtime.read_plan(request.get("token"),"deb" if action=="apt-apply" else "flatpak")
+        previous=runtime.read_plan(request.get("token"),"pacman" if action=="pacman-apply" else "flatpak")
     directory(ROOT.parent,0o755,repair_legacy=True)
     directory(ROOT,0o711)
     directory(OWNERS,0o711)

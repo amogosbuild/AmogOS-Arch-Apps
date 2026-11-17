@@ -8,6 +8,7 @@ import sys
 import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from amogos_install.desktops import LABELS, check_network, selection
 from amogos_install.drivers import recommendations
 from amogos_install.installer import Installer
 from amogos_install.planner import make_plan
@@ -32,7 +33,7 @@ def main():
         raise InstallError("Only probe, plan, and install actions are available.")
     action = sys.argv[1]
     request, runner = read_request(), Runner()
-    state = pathlib.Path("/run/amogos-installer")
+    state = pathlib.Path("/run/amogos-arch-installer")
     state.mkdir(mode=0o700, exist_ok=True)
     owner = int(os.environ.get("PKEXEC_UID", os.getuid()))
     if action == "probe":
@@ -46,6 +47,10 @@ def main():
         if disk is None:
             raise InstallError("Choose an available installation drive.")
         plan = make_plan(disk, request, pathlib.Path("/sys/firmware/efi").exists(), disks)
+        desktop = selection(request)
+        check_network(desktop, plan["upgrade"])
+        plan["desktop"] = desktop
+        plan["operations"].append("Set up the " + LABELS[desktop] + " desktop")
         token = secrets.token_hex(32)
         plan.update(token=token, owner=owner, expires=time.time() + 3600)
         path = state / (token + ".json")

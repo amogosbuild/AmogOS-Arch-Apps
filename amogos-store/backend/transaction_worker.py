@@ -7,7 +7,7 @@ import sys
 import time
 
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
-from amogos_store import apt_transactions,flatpak_transactions,jobs,runtime
+from amogos_store import pacman_transactions,flatpak_transactions,jobs,runtime
 
 
 def main():
@@ -39,9 +39,9 @@ def main():
     jobs.write_state(folder,state)
     try:
         action=private["action"]
-        if action=="apt-apply":apt_transactions.apply(private["request"])
+        if action=="pacman-apply":pacman_transactions.apply(private["request"])
         elif action=="flatpak-apply":flatpak_transactions.apply(private["request"])
-        else:apt_transactions.refresh()
+        else:pacman_transactions.refresh()
     except BaseException as error:
         state.update(status="failed",done=False,error=True)
         record(dict(message=str(error),error=True))

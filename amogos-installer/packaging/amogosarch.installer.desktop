@@ -1,0 +1,9 @@
+# Guided live installation for AmogOS 2 Pro (Arch).
+[Desktop Entry]
+Type=Application
+Name=Install AmogOS 2 Pro (Arch)
+Exec=/usr/bin/amogos-arch-installer
+Icon=amogosarch.installer
+Terminal=false
+Categories=System;
+StartupWMClass=amogosarch.installer

@@ -8,15 +8,14 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]))
-from amogos_store import apt_catalog,apt_transactions,flatpak_local,flatpak_transactions,inventory,updates,user_plans
+from amogos_store import pacman_catalog,pacman_transactions,flatpak_local,flatpak_transactions,inventory,updates,user_plans
 from amogos_store.runtime import StoreError
-from test_apt_browse import Cache,package,version
 
 
 class InstalledUpdates(unittest.TestCase):
     def test_installed_inventory_includes_local_packages_and_paginates_all_sources(self):
-        rows=[dict(id=str(i),name="Package "+str(i).zfill(2),source="deb",installed=True) for i in range(30)]
-        with patch.object(inventory,"apt_items",return_value=rows),patch.object(inventory,"images",return_value=[dict(id="123",name="VLC",source="appimage",installed=True)]),patch.object(flatpak_local,"listing",side_effect=lambda scope:[dict(id="org.test.App",name="Flatpak "+scope,scope=scope,reference="app/org.test.App/x86_64/stable",source="flatpak",installed=True)]):
+        rows=[dict(id=str(i),name="Package "+str(i).zfill(2),source="pacman",installed=True) for i in range(30)]
+        with patch.object(inventory,"pacman_items",return_value=rows),patch.object(inventory,"images",return_value=[dict(id="123",name="VLC",source="appimage",installed=True)]),patch.object(flatpak_local,"listing",side_effect=lambda scope:[dict(id="org.test.App",name="Flatpak "+scope,scope=scope,reference="app/org.test.App/x86_64/stable",source="flatpak",installed=True)]):
             first=inventory.search({})
             last=inventory.search(dict(page=1))
             self.assertEqual(first["total"],33)
@@ -25,15 +24,11 @@ class InstalledUpdates(unittest.TestCase):
             self.assertEqual(len(first["items"]+last["items"]),33)
             self.assertEqual(inventory.search(dict(source="flatpak"))["total"],2)
             self.assertEqual(inventory.search(dict(query="VLC"))["total"],1)
-        p=package("local-app");p.installed=p.candidate;p.candidate=None
-        with patch.object(apt_catalog,"cache",return_value=Cache({p.name:p})),patch.object(apt_catalog,"component_metadata",return_value={}):
-            self.assertEqual(inventory.apt_items()[0]["version"],"1")
-
     def test_failed_inventory_source_does_not_hide_other_installed_software(self):
-        with patch.object(inventory,"apt_items",side_effect=StoreError("APT failed")),patch.object(inventory,"images",return_value=[dict(id="1",name="Image",source="appimage")]),patch.object(flatpak_local,"listing",return_value=[]):
+        with patch.object(inventory,"pacman_items",side_effect=StoreError("APT failed")),patch.object(inventory,"images",return_value=[dict(id="1",name="Image",source="appimage")]),patch.object(flatpak_local,"listing",return_value=[]):
             value=inventory.search({})
         self.assertEqual(value["items"][0]["source"],"appimage")
-        self.assertEqual(value["warnings"][0]["source"],"deb")
+        self.assertEqual(value["warnings"][0]["source"],"pacman")
 
     def test_flatpak_partial_refs_are_expanded_and_runtime_branches_remain_distinct(self):
         def run(args,**kwargs):
@@ -52,40 +47,12 @@ class InstalledUpdates(unittest.TestCase):
         self.assertEqual(len(values),1)
         self.assertEqual((values[0]["scope"],values[0]["fromVersion"],values[0]["version"]),("user","1","2"))
 
-    def test_selected_apt_plan_only_marks_requested_packages_and_preserves_automatic(self):
-        chosen=package("chosen");chosen.installed=version("1");chosen.candidate=version("2");chosen.essential=False;chosen.marked_delete=False;chosen.marked_reinstall=False;chosen.is_auto_installed=True
-        touched=[]
-        chosen.mark_install=lambda **kwargs:touched.append(kwargs)
-        unrelated=package("unrelated");unrelated.installed=unrelated.candidate
-        c=Cache({p.name:p for p in [chosen,unrelated]});c.broken_count=0;c.required_download=10;c.required_space=20;c.get_changes=lambda:[chosen]
-        import apt_pkg
-        apt_pkg.init_system()
-        with patch.object(apt_catalog,"cache",return_value=c):
-            value=apt_transactions.resolve(dict(operation="update-selected",packages=["chosen"]))
-            with self.assertRaises(StoreError):apt_transactions.resolve(dict(operation="update-selected",packages=["missing"]))
-        self.assertEqual(value["packages"],["chosen"])
-        self.assertEqual([v["id"] for v in value["changes"]],["chosen"])
-        self.assertFalse(touched[0]["from_user"])
-        self.assertTrue(value["changes"][0]["automatic"])
-
     def test_update_source_failure_is_separate_from_other_formats(self):
-        with patch.object(apt_transactions,"updates",side_effect=StoreError("APT offline")),patch.object(flatpak_transactions,"updates",return_value=[dict(id="org.test.App")]),patch.object(updates,"image_updates",return_value=([dict(id="123")],[])):
+        with patch.object(pacman_transactions,"updates",side_effect=StoreError("APT offline")),patch.object(flatpak_transactions,"updates",return_value=[dict(id="org.test.App")]),patch.object(updates,"image_updates",return_value=([dict(id="123")],[])):
             value=updates.get()
         self.assertEqual(value["flatpak"][0]["id"],"org.test.App")
         self.assertEqual(value["appimage"][0]["id"],"123")
-        self.assertEqual(value["warnings"][0]["source"],"deb")
-
-    def test_repair_reviews_reinstall_even_when_apt_marks_the_version_keep(self):
-        import apt_pkg
-        apt_pkg.init_system()
-        chosen=package("chosen");chosen.installed=chosen.candidate;chosen.essential=False;chosen.marked_delete=False;chosen.is_auto_installed=False
-        chosen.mark_install=lambda **kwargs:None
-        c=Cache({chosen.name:chosen});c.broken_count=0;c.required_download=0;c.required_space=0;c.get_changes=lambda:[]
-        with patch.object(apt_catalog,"cache",return_value=c):
-            value=apt_transactions.resolve(dict(operation="repair",id="chosen"))
-        self.assertEqual(value["changes"][0]["action"],"reinstall")
-        self.assertEqual(value["changes"][0]["id"],"chosen")
-        self.assertEqual(value["downloadBytes"],10)
+        self.assertEqual(value["warnings"][0]["source"],"pacman")
 
     def test_appimage_update_retains_selected_build_and_avoids_downgrades(self):
         current={"123":dict(name="App",version="2.0",download=2)}

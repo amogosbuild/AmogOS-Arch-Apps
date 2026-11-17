@@ -1,0 +1,26 @@
+# Keep the live-only installer independent of the persistent desktop package.
+pkgname=amogos-arch-installer
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Live installer for AmogOS 2 Pro Arch'
+arch=(x86_64)
+url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
+license=(custom)
+options=(!strip !debug)
+depends=(amogos-arch-system amogos-arch-onboarding gtk3 libglvnd python polkit parted dosfstools e2fsprogs ntfs-3g squashfs-tools util-linux grub efibootmgr os-prober mkinitcpio mpv)
+
+package() {
+    local project="$AMOGOS_APPS_ROOT/amogos-installer"
+    install -d "$pkgdir/usr/lib/$pkgname/"{app,backend} "$pkgdir/usr/share/licenses/$pkgname"
+    cp -a "$project/build/linux/x64/release/bundle/." "$pkgdir/usr/lib/$pkgname/app/"
+    install -m644 "$project/backend/cli.py" "$pkgdir/usr/lib/$pkgname/backend/"
+    install -d "$pkgdir/usr/lib/$pkgname/backend/amogos_install"
+    install -m644 "$project/backend/amogos_install/"*.py "$pkgdir/usr/lib/$pkgname/backend/amogos_install/"
+    install -Dm755 "$project/packaging/$pkgname" "$pkgdir/usr/bin/$pkgname"
+    install -Dm755 "$project/packaging/$pkgname-helper" "$pkgdir/usr/libexec/$pkgname-helper"
+    install -Dm644 "$project/packaging/amogosarch.installer.desktop" "$pkgdir/usr/share/applications/amogosarch.installer.desktop"
+    install -Dm644 "$project/packaging/amogosarch.installer.policy" "$pkgdir/usr/share/polkit-1/actions/amogosarch.installer.policy"
+    install -Dm644 "$AMOGOS_APPS_ROOT/system/rootfs/usr/share/pixmaps/amogos-menu.png" "$pkgdir/usr/share/pixmaps/amogosarch.installer.png"
+    cp -a "$project/third_party/." "$pkgdir/usr/share/licenses/$pkgname/"
+    install -m644 "$AMOGOS_APPS_ROOT/ARTWORK-LICENSE.md" "$pkgdir/usr/share/licenses/$pkgname/ARTWORK-LICENSE.md"
+}

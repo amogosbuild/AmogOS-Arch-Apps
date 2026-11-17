@@ -5,7 +5,7 @@ import pathlib
 import pwd
 import subprocess
 import shutil
-from . import apt_catalog, appimage_catalog, appimages, flatpak_catalog, flatpak_transactions, flatpak_local
+from . import pacman_catalog, aur, appimage_catalog, appimages, flatpak_catalog, flatpak_transactions, flatpak_local
 from .runtime import StoreError, app_id, package_name, run
 
 
@@ -21,16 +21,18 @@ def search(request):
     if type(page) is not int or not 0<=page<=1000000:
         raise StoreError("Invalid catalog page.")
     jobs={}
-    if source in ("all","deb") and not (request.get("fresh") and source=="all"):
-        jobs["deb"]=lambda:apt_catalog.catalog(query,str(request.get("repo","")),category,page)
+    if source in ("all","pacman") and not (request.get("fresh") and source=="all"):
+        jobs["pacman"]=lambda:pacman_catalog.catalog(query,str(request.get("repo","")),category,page)
     if source in ("all","flatpak"):
         jobs["flatpak"]=lambda:flatpak_catalog.catalog(query,category,page,bool(request.get("fresh")))
+    if source=="aur" or (source=="all" and query and not request.get("repo") and aur.enabled()):
+        jobs["aur"]=lambda:aur.search(query,category,page)
     if source in ("all","appimage"):
         jobs["appimage"]=lambda:appimage_catalog.catalog(query,category,page,bool(request.get("fresh")),local_images())
     if not jobs:
         raise StoreError("Choose a supported package source.")
     items=[];warnings=[];totals={}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         tasks={pool.submit(call):name for name,call in jobs.items()}
         for future in concurrent.futures.as_completed(tasks):
             name=tasks[future]
@@ -41,14 +43,16 @@ def search(request):
                     warnings.append(dict(source=name,message="Showing cached catalog data; the source is currently offline."))
             except Exception as error:
                 warnings.append(dict(source=name,message=str(error)))
-    items.sort(key=lambda x:(0 if query and (x["id"].lower()==query.lower() or x["name"].lower()==query.lower()) else 1 if query and x["name"].lower().startswith(query.lower()) else 2,0 if x["source"]=="deb" else 1 if x["source"]=="flatpak" else 2))
+    items.sort(key=lambda x:(0 if query and (x["id"].lower()==query.lower() or x["name"].lower()==query.lower()) else 1 if query and x["name"].lower().startswith(query.lower()) else 2,0 if x["source"]=="pacman" else 1 if x["source"]=="flatpak" else 2))
     return dict(items=items,warnings=warnings,totals=totals,page=page)
 
 
 def details(request):
     source=request.get("source")
-    if source=="deb":
-        return apt_catalog.details(request.get("id"),request.get("repo",""))
+    if source=="aur":
+        return aur.details(request.get("id"))
+    if source=="pacman":
+        return pacman_catalog.details(request.get("id"),request.get("repo",""))
     if source=="flatpak":
         return flatpak_catalog.details(request.get("id"),request.get("scope","system"),request.get("reference",""))
     if source=="appimage":
@@ -64,7 +68,7 @@ def sources():
     name=account.pw_gecos.split(",")[0] or account.pw_name
     warnings=[]
     try:
-        repositories=apt_catalog.repositories()
+        repositories=pacman_catalog.repositories()
     except Exception as error:
         repositories=[];warnings.append(str(error))
     return dict(name=name,repositories=repositories,flatpak=flatpak_transactions.remotes(),flatpakInstalled=bool(shutil.which("flatpak")),appimage=dict(id="appimagehub",name="AppImageHub",enabled=True,url="https://www.appimagehub.com"),warnings=warnings)
@@ -83,12 +87,12 @@ def launch(request):
         if current is None:
             raise StoreError("This Flatpak is not installed.")
         args=["flatpak","--"+scope,"run",current["reference"]]
-    elif source=="deb":
+    elif source in ("pacman","aur"):
         identity=package_name(request.get("id"))
-        status=run(["dpkg-query","-W","-f="+chr(36)+"{db:Status-Status}",identity],check=False)
-        if status.returncode or status.stdout.strip()!="installed":
+        files=run(["pacman","-Qlq","--",identity],check=False)
+        if files.returncode:
             raise StoreError("This package is not installed.")
-        files=run(["dpkg-query","-L",identity]).stdout.splitlines()
+        files=files.stdout.splitlines()
         desktops=[pathlib.Path(p) for p in files if p.startswith("/usr/share/applications/") and p.endswith(".desktop") and pathlib.Path(p).is_file()]
         desktops.sort(key=lambda p:("NoDisplay=true" in p.read_text(),p.name!=identity+".desktop",p.name))
         desktop=next(iter(desktops),None)

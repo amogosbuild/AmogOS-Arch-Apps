@@ -92,10 +92,9 @@ class Reporter:
 
 
 def live_medium():
-    for name in ("/run/live/medium", "/lib/live/mount/medium", "/cdrom"):
-        path = pathlib.Path(name)
-        if (path / "live/filesystem.squashfs").is_file():
-            return path.resolve()
+    path = pathlib.Path("/run/archiso/bootmnt")
+    if (path / "amogos/x86_64/airootfs.sfs").is_file():
+        return path
     return None
 
 
@@ -115,7 +114,7 @@ def private_mounts(runner):
 
 
 def log_directory():
-    root = pathlib.Path("/var/log/amogos-installer")
+    root = pathlib.Path("/var/log/amogos-arch-installer")
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     path = root / stamp

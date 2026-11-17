@@ -5,6 +5,7 @@ import '../../core/controllers/store_controller.dart';
 import '../../core/models/store_models.dart';
 import '../browse/browse_page.dart';
 import '../sources/sources_page.dart';
+import '../settings/settings_page.dart';
 import '../updates/updates_page.dart';
 import '../queue/queue_dialog.dart';
 import 'store_sidebar.dart';
@@ -18,6 +19,7 @@ class StoreShell extends StatelessWidget {
       key: ValueKey(controller.page),
       child: switch (controller.page) {
         StorePage.updates => UpdatesPage(controller: controller),
+        StorePage.settings => SettingsPage(controller: controller),
         StorePage.sources => SourcesPage(controller: controller),
         _ => BrowsePage(controller: controller),
       },

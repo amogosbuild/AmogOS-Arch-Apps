@@ -16,11 +16,11 @@ Future<void> reviewSelectedUpdates(
       .where((v) => keys.contains(StoreController.updateKey(v)))
       .toList();
   if (items.isEmpty) return;
-  if (source == 'deb') {
+  if (source == 'pacman') {
     await reviewTransaction(
       context,
       c,
-      title: '${items.length} selected APT updates',
+      title: 'Review Pacman system updates',
       source: source,
       operation: 'update-selected',
       request: {

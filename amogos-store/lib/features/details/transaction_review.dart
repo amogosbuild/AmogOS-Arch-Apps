@@ -13,6 +13,10 @@ Future<bool> reviewTransaction(
   required Map<String, dynamic> request,
   void Function(String)? onError,
 }) async {
+  if (source == 'aur' && operation == 'remove') {
+    return reviewTransaction(context, c, title: title, source: 'pacman',
+        operation: operation, request: {...request, 'source': 'pacman', 'repo': ''}, onError: onError);
+  }
   Map<String, dynamic> review;
   try {
     if (source == 'appimage') {
@@ -32,7 +36,7 @@ Future<bool> reviewTransaction(
             : 'AppImages are installed in your user account and run with your user permissions.',
       };
     } else {
-      final prefix = source == 'deb' ? 'apt' : 'flatpak';
+      final prefix = source == 'pacman' || source == 'aur' ? source : 'flatpak';
       review = await c.service.request('$prefix-plan', request);
     }
   } catch (e) {
@@ -53,7 +57,7 @@ Future<bool> reviewTransaction(
   if (changes.isEmpty) {
     final message = operation == 'repair-system'
         ? 'Package configuration is healthy. No repairs are needed.'
-        : 'No package changes are needed. This version is already installed. Use Repair to reinstall an APT application.';
+        : 'No package changes are needed. This version is already installed. Use Repair to reinstall an Pacman application.';
     if (onError != null) {
       onError(message);
     } else {
@@ -95,6 +99,11 @@ Future<bool> reviewTransaction(
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
+              if (review['recipe'] is String) ...[
+                const SizedBox(height: 16),
+                SelectableText(review['recipe'] as String,
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 11)),
+              ],
               const SizedBox(height: 18),
               Text(
                 '${changes.length} package changes',
@@ -165,7 +174,7 @@ Future<bool> reviewTransaction(
                 'Download: ${byteSize(review['downloadBytes'] as num?)}',
                 style: const TextStyle(fontSize: 12),
               ),
-              if (source == 'deb')
+              if (source == 'pacman')
                 Text(
                   'Disk space: ${byteSize(review['spaceBytes'] as num?)}',
                   style: const TextStyle(fontSize: 12),

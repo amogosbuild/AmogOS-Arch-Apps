@@ -12,11 +12,11 @@ class Alternatives(unittest.TestCase):
     def test_vlc_appimage_name_resolves_all_available_source_choices(self):
         current=dict(id="2194959",name="Vlc appimage",source="appimage",repo="appimagehub",version="3.0.21")
         older=dict(id="1231861",name="VLC Media Player",source="appimage",repo="appimagehub",version="3.0.11")
-        apt=dict(id="vlc",name="VLC",source="deb",repo="main",version="3.0.21")
+        apt=dict(id="vlc",name="VLC",source="pacman",repo="main",version="3.0.21")
         flat=dict(id="org.videolan.VLC",name="VLC",source="flatpak",repo="flathub",version="3.0.21")
-        with patch.object(alternatives.catalog,"details",return_value=current),patch.object(alternatives.catalog,"local_images",return_value={}),patch.object(alternatives.apt_catalog,"alternatives",return_value=[apt]) as apt_choices,patch.object(alternatives.flatpak_catalog,"details",return_value=flat) as flat_choice,patch.object(alternatives.appimage_catalog,"catalog",return_value=([current,older],2,False)) as image_choices:
+        with patch.object(alternatives.catalog,"details",return_value=current),patch.object(alternatives.catalog,"local_images",return_value={}),patch.object(alternatives.pacman_catalog,"alternatives",return_value=[apt]) as apt_choices,patch.object(alternatives.flatpak_catalog,"details",return_value=flat) as flat_choice,patch.object(alternatives.appimage_catalog,"catalog",return_value=([current,older],2,False)) as image_choices:
             result=alternatives.get(dict(id=current["id"],source="appimage"))
-        self.assertEqual({v["source"] for v in result["items"]},{"deb","flatpak","appimage"})
+        self.assertEqual({v["source"] for v in result["items"]},{"pacman","flatpak","appimage"})
         self.assertEqual(len([v for v in result["items"] if v["source"]=="appimage"]),2)
         apt_choices.assert_called_once_with("vlc")
         flat_choice.assert_called_once_with("org.videolan.VLC")

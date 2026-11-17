@@ -1,0 +1,5 @@
+# Keep code portable across Linux build hosts and Windows checkouts.
+* text=auto eol=lf
+*.png binary
+*.ttf binary
+*.gpg binary

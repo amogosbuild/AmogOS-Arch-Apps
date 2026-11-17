@@ -17,7 +17,7 @@ class StoreError(Exception):
     pass
 
 
-PLAN_DIRECTORY = pathlib.Path("/var/lib/amogos-store/plans")
+PLAN_DIRECTORY = pathlib.Path("/var/lib/amogos-arch-store/plans")
 EVENT_SINK = None
 
 
@@ -41,7 +41,7 @@ def emit(message, progress=None, **extra):
 
 
 def stream(args, timeout=3600):
-    env = dict(os.environ, LC_ALL="C.UTF-8", DEBIAN_FRONTEND="noninteractive", TERM="dumb",MAKEFLAGS="-j1")
+    env = dict(os.environ, LC_ALL="C.UTF-8", TERM="dumb",MAKEFLAGS="-j1")
     read_fd,write_fd=os.pipe()
     arguments=[str(value).replace("{status_fd}",str(write_fd)) for value in args]
     try:
@@ -92,7 +92,7 @@ def stream(args, timeout=3600):
 
 
 def package_name(value):
-    if not isinstance(value, str) or not re.fullmatch(r"[a-z0-9][a-z0-9+.-]*(?::[a-z0-9]+)?", value):
+    if not isinstance(value, str) or not re.fullmatch(r"[a-z0-9_][a-z0-9_+@.-]{0,199}", value):
         raise StoreError("Invalid package name.")
     return value
 
@@ -106,7 +106,7 @@ def app_id(value):
 def user_state():
     if os.geteuid() == 0:
         raise StoreError("User applications must be managed from your desktop account.")
-    root = pathlib.Path.home()/".local/share/amogos-store"
+    root = pathlib.Path.home()/".local/share/amogos-arch-store"
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
     return root
 
@@ -127,7 +127,7 @@ def require_root():
 def transaction_lock():
     require_root()
     pathlib.Path("/run/lock").mkdir(exist_ok=True)
-    fd = os.open("/run/lock/amogos-store.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    fd = os.open("/run/lock/amogos-arch-store.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     try:
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)

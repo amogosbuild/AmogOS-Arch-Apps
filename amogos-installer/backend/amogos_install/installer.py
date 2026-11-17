@@ -1,53 +1,30 @@
 # Installation applies a reviewed plan only in live media and confines configuration to the mounted target.
 import pathlib
 import os
-import pwd
 import re
 import shutil
 import tempfile
-import time
-from .package_updates import configure_packages, prepare_online
+from .desktops import DESKTOPS, check_network
 from .kernels import prepare_kernels
 from .planner import MIB, fingerprint
 from .runtime import InstallError, Runner, log_directory, private_mounts, require_live
 from .storage import disk_by_path, read_table, shrink_limit
 from .bootloaders import Bootloader
 
-SYSTEM_PACKAGE = pathlib.Path('/usr/share/amogos-installer/amogos-system.deb')
-SYSTEM_VERSION = '2.1.0-2'
-
-
 def validate_settings(request):
-    account = request.get("account", {})
-    username = account.get("username", "")
-    if not isinstance(username, str) or not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", username) or username in ("root", "daemon", "nobody", "bin", "sys", "sync", "installer"):
-        raise InstallError("Choose a valid, non-system username.")
-    try:
-        if pwd.getpwnam(username).pw_uid < 1000:
-            raise InstallError("This username belongs to a system account.")
-    except KeyError:
-        pass
-    name, hostname, password = account.get("name", ""), account.get("hostname", ""), account.get("password", "")
-    if not isinstance(name, str) or not 1 <= len(name.strip()) <= 80 or re.search(r"[:\x00\r\n]", name):
-        raise InstallError("Enter a valid full name.")
-    if not isinstance(hostname, str) or not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", hostname):
-        raise InstallError("Enter a valid computer name.")
-    if not isinstance(password, str) or not 8 <= len(password) <= 1024 or re.search(r"[\x00\r\n]", password):
-        raise InstallError("Passwords need at least eight characters and cannot contain line breaks.")
-    locale = request.get("locale", "")
-    supported = pathlib.Path("/usr/share/i18n/SUPPORTED").read_text() if pathlib.Path("/usr/share/i18n/SUPPORTED").exists() else ""
-    if not re.fullmatch(r"[a-z]{2}_[A-Z]{2}\.UTF-8", locale) or locale not in supported:
-        raise InstallError("This system language is not available on the live image.")
-    timezone = request.get("timezone", "")
-    if not isinstance(timezone, str) or ".." in timezone.split("/") or timezone.startswith("/"):
-        raise InstallError("Invalid time zone.")
-    zone = pathlib.Path("/usr/share/zoneinfo") / timezone
-    if not zone.is_file() or not str(zone.resolve()).startswith("/usr/share/zoneinfo/"):
+    locale = request.get("locale")
+    if not isinstance(locale, str) or not re.fullmatch(r"[a-z]{2}_[A-Z]{2}\.UTF-8", locale):
+        raise InstallError("Select a supported system language.")
+    available = pathlib.Path("/etc/locale.gen").read_text().splitlines()
+    if not any(line.lstrip("# ").split() == [locale, "UTF-8"] for line in available):
+        raise InstallError("This system language is unavailable.")
+    timezone = request.get("timezone")
+    zones = pathlib.Path("/usr/share/zoneinfo")
+    if not isinstance(timezone, str) or not (zones / timezone).resolve().is_relative_to(zones) or not (zones / timezone).is_file():
         raise InstallError("Select an available time zone.")
-    keyboard = request.get("keyboard", "")
-    if not re.fullmatch(r"[a-z]{2}", keyboard) or not pathlib.Path("/usr/share/X11/xkb/symbols", keyboard).is_file():
+    keyboard = request.get("keyboard")
+    if not isinstance(keyboard, str) or not re.fullmatch(r"[a-z]{2}", keyboard) or not pathlib.Path("/usr/share/X11/xkb/symbols", keyboard).is_file():
         raise InstallError("Select an available keyboard layout.")
-    return account
 
 
 class Installer:
@@ -60,6 +37,7 @@ class Installer:
     def run(self):
         medium = require_live(self.runner)
         validate_settings(self.request)
+        check_network(self.plan["desktop"], self.plan["upgrade"])
         if self.request.get("confirmation") != self.plan.get("confirmation", self.plan["disk"].split("/")[-1]):
             raise InstallError("The drive confirmation does not match the reviewed plan.")
         disk = disk_by_path(self.runner, self.plan["disk"], inspect=False)
@@ -80,8 +58,6 @@ class Installer:
         (folder / "partition-table.before").write_text(self.runner.run(["sfdisk", "--dump", disk["path"]], check=False).stdout)
         self.report.emit("prepare", .02, "Checking the live system and reviewed layout")
         try:
-            if self.plan["upgrade"]:
-                prepare_online(self.runner,self.report)
             private_mounts(self.runner)
             self.target = pathlib.Path(tempfile.mkdtemp(prefix="amogos-target-", dir="/run"))
             self._partitions(disk)
@@ -93,18 +69,15 @@ class Installer:
                 self._mount(self.plan["esp"], self.target / "boot/efi")
             self._runtime()
             self._configure()
-            self._ensure_system_core()
             self._packages()
             self._boot(medium)
-            self._remove_live_tools()
             self.report.emit("finish", .98, "Syncing your new system to disk")
-            self.chroot(["apt-get", "clean"], check=False)
             self.runner.run(["sync"], timeout=180)
         finally:
             self.runner.log.flush()
             if self.target and (self.target / "etc/os-release").exists():
                 try:
-                    shutil.copytree(folder, self.target / "var/log/amogos-installer" / folder.name, dirs_exist_ok=True)
+                    shutil.copytree(folder, self.target / "var/log/amogos-arch-installer" / folder.name, dirs_exist_ok=True)
                 except OSError:
                     pass
             for path in reversed(self.mounts):
@@ -115,7 +88,7 @@ class Installer:
                 except OSError:
                     pass
             self.runner.log.close()
-        self.report.emit("complete", 1, "AmogOS 2 Pro is installed. Welcome home.", done=True)
+        self.report.emit("complete", 1, "AmogOS 2 Pro (Arch) is installed. Welcome home.", done=True)
 
     def _validate_boot_targets(self):
         for item in self.plan.get("bootTargets", []):
@@ -175,12 +148,12 @@ class Installer:
         self.mounts.append(target)
 
     def _copy(self, medium):
-        self.report.emit("copy", .17, "Unpacking your AmogOS 2 Pro system")
+        self.report.emit("copy", .17, "Unpacking your AmogOS 2 Pro (Arch) system")
         def progress(line):
             percent = re.search(r"(\d+)%", line)
             if percent:
-                self.report.emit("copy", .17 + .45 * int(percent.group(1)) / 100, "Copying AmogOS 2 Pro")
-        self.runner.stream(["nice", "-n", "10", "unsquashfs", "-force", "-processors", "1", "-data-queue", "8", "-frag-queue", "8", "-percentage", "-d", str(self.target), str(medium / "live/filesystem.squashfs")], progress)
+                self.report.emit("copy", .17 + .45 * int(percent.group(1)) / 100, "Copying AmogOS 2 Pro (Arch)")
+        self.runner.stream(["nice", "-n", "10", "unsquashfs", "-force", "-processors", "1", "-data-queue", "8", "-frag-queue", "8", "-percentage", "-d", str(self.target), str(medium / "amogos/x86_64/airootfs.sfs")], progress)
         descriptor=os.open(self.target,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
         try:
             os.fchown(descriptor,0,0)
@@ -204,9 +177,6 @@ class Installer:
         if resolver.is_symlink():
             resolver.unlink()
         resolver.write_text(pathlib.Path("/etc/resolv.conf").read_text())
-        policy = self.target / "usr/sbin/policy-rc.d"
-        policy.write_text("#!/bin/sh\nexit 101\n")
-        policy.chmod(0o755)
 
     def chroot(self, args, **kwargs):
         return self.runner.run(["chroot", str(self.target), *args], **kwargs)
@@ -223,106 +193,46 @@ class Installer:
         return value
 
     def _configure(self):
-        self.report.emit("configure", .66, "Making AmogOS 2 Pro yours")
-        a = self.request["account"]
-        existing = self.chroot(["getent", "passwd", a["username"]], check=False)
-        if existing.returncode == 0 and int(existing.stdout.split(":")[2]) < 1000:
-            raise InstallError("This username belongs to a system account.")
-        groups = [g for g in ("sudo", "audio", "video", "netdev", "plugdev") if self.chroot(["getent", "group", g], check=False).returncode == 0]
-        if existing.returncode:
-            self.chroot(["useradd", "--create-home", "--shell", "/bin/bash", "--comment", a["name"], "--groups", ",".join(groups), a["username"]])
-        else:
-            self.chroot(["usermod", "--comment", a["name"], "--append", "--groups", ",".join(groups), a["username"]])
-        self.chroot(["chpasswd"], input=a["username"] + ":" + a["password"] + "\n")
-        self.chroot(["passwd", "--lock", "root"])
-        if a["username"] != "user":
-            live = self.chroot(["getent", "passwd", "user"], check=False)
-            if live.returncode == 0 and int(live.stdout.split(":")[2]) == 1000:
-                self.chroot(["userdel", "--force", "--remove", "user"])
-        for name in ("live", "live-config"):
-            (self.target / "etc/sudoers.d" / name).unlink(missing_ok=True)
-        self.write("etc/sudoers.d/90-amogos-user", a["username"] + " ALL=(ALL:ALL) ALL\n")
-        (self.target / "etc/sudoers.d/90-amogos-user").chmod(0o440)
-        for folder in ("etc/skel/Desktop", "home/" + a["username"] + "/Desktop"):
-            for name in ("install-system.desktop", "amogos-installer.desktop", "amogos.installer.desktop"):
-                shortcut = self.target / folder / name
-                if shortcut.is_file() and shortcut.resolve().is_relative_to(self.target.resolve()):
-                    shortcut.unlink()
-        self.write("usr/share/applications/amogos.installer.desktop", "# Live installer is hidden on the installed system.\n[Desktop Entry]\nType=Application\nName=Install AmogOS 2 Pro\nExec=/usr/bin/amogos-installer\nStartupWMClass=amogos.installer\nNoDisplay=true\n")
-        self.write("etc/hostname", a["hostname"] + "\n")
-        self.write("etc/hosts", "127.0.0.1 localhost\n127.0.1.1 " + a["hostname"] + "\n::1 localhost ip6-localhost ip6-loopback\n")
-        self.write("etc/default/locale", 'LANG="' + self.request["locale"] + '"\n')
-        self.write("etc/locale.gen", self.request["locale"] + " UTF-8\n")
-        self.chroot(["locale-gen"], timeout=300)
-        self.write("etc/timezone", self.request["timezone"] + "\n")
-        localtime = self.target / "etc/localtime"
-        if localtime.exists() or localtime.is_symlink():
-            localtime.unlink()
+        self.report.emit("configure", .66, "Making AmogOS 2 Pro (Arch) yours")
+        for name in (
+            "etc/systemd/system/multi-user.target.wants/amogos-arch-live.service",
+            "etc/sddm.conf.d/20-amogos-live.conf",
+            "etc/mkinitcpio.conf.d/archiso.conf",
+            "etc/pacman.d/hooks/00-amogos-archiso-only.hook",
+            "etc/skel/Desktop/amogosarch.installer.desktop",
+        ):
+            (self.target / name).unlink(missing_ok=True)
+        self.write("etc/hostname", "amogos-arch\n")
+        self.write("etc/locale.conf", "LANG=" + self.request["locale"] + "\n")
+        locale_file=self.target / "etc/locale.gen"
+        locale = self.request["locale"] + " UTF-8"
+        contents=locale_file.read_text().splitlines()
+        locale_file.write_text("\n".join(locale if line.lstrip("# ") == locale else line for line in contents) + "\n")
+        self.chroot(["locale-gen"],timeout=300)
+        localtime=self.target/"etc/localtime"
+        localtime.unlink(missing_ok=True)
         localtime.symlink_to("/usr/share/zoneinfo/" + self.request["timezone"])
-        self.write("etc/default/keyboard", 'XKBMODEL="pc105"\nXKBLAYOUT="' + self.request["keyboard"] + '"\nXKBVARIANT=""\nXKBOPTIONS=""\n')
-        session = "plasma"
-        preferred = self.target / "etc/amogos/desktop-session"
-        if preferred.is_file():
-            value = preferred.read_text().strip()
-            if value in ("plasma", "plasmax11") and (value != "plasmax11" or (self.target / "usr/bin/kwin_x11").is_file()):
-                session = value
-        self.write("etc/sddm.conf", "[Autologin]\nUser=" + (a["username"] if a.get("autoLogin") else "") + "\nSession=" + session + "\n")
+        self.write("etc/X11/xorg.conf.d/00-keyboard.conf", '# Keyboard layout chosen in the installer.\nSection "InputClass"\n    Identifier "system-keyboard"\n    MatchIsKeyboard "on"\n    Option "XkbLayout" "'+self.request["keyboard"]+'"\nEndSection\n')
+        self.write("etc/vconsole.conf", "KEYMAP=" + ("uk" if self.request["keyboard"] == "gb" else self.request["keyboard"]) + "\n")
         fstab = "UUID=" + self._uuid(self.plan["root"]) + " / ext4 defaults,errors=remount-ro 0 1\n"
         if self.plan["esp"]:
             fstab += "UUID=" + self._uuid(self.plan["esp"]) + " /boot/efi vfat umask=0077 0 2\n"
-        self.write("etc/fstab", fstab)
-        self.write("etc/crypttab", "")
-        self.write("etc/initramfs-tools/conf.d/resume", "RESUME=none\n")
-        machine = self.target / "etc/machine-id"
-        if machine.is_symlink():
-            machine.unlink()
-        machine.write_text("")
-        for key in (self.target / "etc/ssh").glob("ssh_host_*"):
-            if key.is_file():
-                key.unlink()
-        root_keys = self.target / "root/.ssh/authorized_keys"
-        if root_keys.exists():
-            root_keys.unlink()
-        self.write("etc/apt/sources.list", "deb https://deb.debian.org/debian trixie main contrib non-free non-free-firmware\n"
-            "deb https://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware\n"
-            "deb https://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware\n")
+        self.write("etc/fstab",fstab)
+        machine=self.target/"etc/machine-id"
+        machine.unlink(missing_ok=True)
+        machine.touch()
+        self.chroot(["passwd","--lock","root"])
+        self.chroot(["pacman-key","--init"],timeout=300)
+        self.chroot(["pacman-key","--populate","archlinux","chaotic","amogos-arch"],timeout=300)
+        self.chroot(["/usr/lib/amogos-arch-onboarding/prepare", self.plan["desktop"]],timeout=120)
 
     def _packages(self):
-        try:
-            configure_packages(self.runner,self.target,self.report,self.plan["drivers"],self.plan["upgrade"])
-        finally:
-            (self.target / "usr/sbin/policy-rc.d").unlink(missing_ok=True)
-
-    def _ensure_system_core(self):
-        installed=self.chroot(["dpkg-query","-W","-f=${db:Status-Status} ${Version}","amogos-system"],check=False)
-        status=installed.stdout.split()
-        if installed.returncode==0 and len(status)==2 and status[0]=="installed":
-            if self.chroot(["dpkg","--compare-versions",status[1],"ge",SYSTEM_VERSION],check=False).returncode==0:
-                return
-        package=SYSTEM_PACKAGE
-        if not package.is_file():
-            raise InstallError('The persistent AmogOS system package is missing from the live installer.')
-        temporary=self.target/'var/tmp/amogos-system.deb'
-        shutil.copyfile(package,temporary)
-        try:
-            self.chroot(["dpkg","-i","/var/tmp/amogos-system.deb"],timeout=300)
-        finally:
-            temporary.unlink(missing_ok=True)
-
-    def _remove_live_tools(self):
-        self.report.emit('finish',.97,'Removing live-session installation tools')
-        names={'amogos-installer','calamares','calamares-settings-debian'}
-        command=['apt-get','-y','--no-auto-remove','purge',*sorted(names)]
-        result=self.chroot([command[0],'--simulate',*command[1:]],timeout=120)
-        removed={line.split()[1] for line in result.stdout.splitlines() if line.startswith(('Remv ','Purg '))}
-        if removed-names:
-            raise InstallError('Removing the live installers would remove other applications; refusing.')
-        self.chroot(command,timeout=600)
-        folders=[self.target/'etc/skel/Desktop',self.target/'home'/self.request['account']['username']/'Desktop']
-        for folder in folders:
-            for name in ('amogos.installer.desktop','amogos-calamares-fallback.desktop','calamares.desktop','install-debian.desktop'):
-                (folder/name).unlink(missing_ok=True)
-        (self.target/'usr/share/applications/amogos-calamares-fallback.desktop').unlink(missing_ok=True)
+        desktop_packages=DESKTOPS[self.plan["desktop"]]
+        if self.plan["upgrade"] or desktop_packages:
+            self.report.emit("packages",.72,"Updating Arch packages from the network")
+            self.runner.stream(["chroot",str(self.target),"pacman","-Syu","--noconfirm","--needed",*desktop_packages],lambda line: self.report.emit("packages",.77,line))
+        self.chroot(["pacman","-Dk"],timeout=180)
+        self.report.emit("drivers",.83,"Zen kernel and included firmware are ready")
 
     def _boot(self, medium):
         self.report.emit("bootloader", .88, "Creating your boot menu")
@@ -331,3 +241,6 @@ class Installer:
             self._validate_boot_targets()
         Bootloader(self.runner, self.target, self.plan, self.report).install()
         self.report.emit("bootloader", .96, "Your boot setup is ready")
+        self.chroot(["pacman","-R","--noconfirm","amogos-arch-installer"],timeout=120)
+        (self.target / "etc/resolv.conf").unlink(missing_ok=True)
+        (self.target / "etc/resolv.conf").symlink_to("/run/NetworkManager/resolv.conf")

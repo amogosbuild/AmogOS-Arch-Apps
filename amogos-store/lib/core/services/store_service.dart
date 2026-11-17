@@ -12,8 +12,8 @@ class StoreService {
   final bool preview;
   List<StorePackage> samples = [];
   static const privileged = {
-    'apt-plan',
-    'apt-apply',
+    'pacman-plan',
+    'pacman-apply',
     'refresh',
     'flatpak-plan',
     'flatpak-apply',
@@ -43,12 +43,12 @@ class StoreService {
                 !({'flatpak-plan', 'flatpak-apply'}.contains(action) &&
                     body['scope'] == 'user')
             ? Process.start('pkexec', [
-                '/usr/libexec/amogos-store-helper',
+                '/usr/libexec/amogos-arch-store-helper',
                 action,
               ])
             : Process.start('/usr/bin/python3', [
                 '-I',
-                '/usr/lib/amogos-store/backend/cli.py',
+                '/usr/lib/amogos-arch-store/backend/cli.py',
                 action,
               ]));
     if (browsing) {
@@ -155,7 +155,7 @@ class StoreService {
   Map<String, dynamic> _preview(String action, Map<String, dynamic> body) {
     if (action == 'sources') {
       final keys = <String>{
-        for (final p in samples.where((p) => p.source == 'deb'))
+        for (final p in samples.where((p) => p.source == 'pacman'))
           ...List<String>.from(p.data['repositories'] ?? [p.repo]),
       };
       return {
@@ -165,7 +165,7 @@ class StoreService {
             {
               'id': key,
               'name': key.replaceAll('|', ' · '),
-              'source': 'deb',
+              'source': 'pacman',
               'trusted': true,
               'enabled': true,
             },
@@ -270,7 +270,7 @@ class StoreService {
     if (action.endsWith('-plan')) {
       return {
         'source':
-            body['source'] ?? (action.startsWith('apt') ? 'deb' : 'flatpak'),
+            body['source'] ?? (action.startsWith('pacman') ? 'pacman' : 'flatpak'),
         'id': body['id'],
         'operation': body['operation'],
         'token': 'preview-token',

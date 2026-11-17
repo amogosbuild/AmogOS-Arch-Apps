@@ -46,21 +46,7 @@ class UpdatesPage extends StatelessWidget {
                         review: {},
                       ),
                     ),
-              child: const Text('Refresh APT indexes'),
-            ),
-            OutlinedButton.icon(
-              onPressed: c.waitingCount > 0
-                  ? null
-                  : () => reviewTransaction(
-                      context,
-                      c,
-                      title: 'Interrupted package installation',
-                      source: 'deb',
-                      operation: 'repair-system',
-                      request: {'operation': 'repair-system', 'source': 'deb'},
-                    ),
-              icon: const Icon(Icons.build_outlined),
-              label: const Text('Repair interrupted installation'),
+              child: const Text('Refresh Pacman indexes'),
             ),
           ],
         ),
@@ -73,7 +59,7 @@ class UpdatesPage extends StatelessWidget {
               '${sourceLabels[warning['source']] ?? warning['source']}: ${warning['message']}',
             ),
           ),
-        for (final source in ['deb', 'flatpak', 'appimage']) ...[
+        for (final source in ['pacman', 'flatpak', 'appimage']) ...[
           const SizedBox(height: 22),
           _UpdateSection(controller: c, source: source),
         ],
@@ -86,7 +72,7 @@ class UpdatesPage extends StatelessWidget {
           ),
         const SizedBox(height: 18),
         const Text(
-          'APT includes the kernel, drivers and security fixes. Flatpak includes applications and runtimes in your user account and system. AppImage updates cover applications installed through this store.',
+          'Pacman includes the kernel, drivers and security fixes. Flatpak includes applications and runtimes in your user account and system. AppImage updates cover applications installed through this store.',
           style: TextStyle(fontSize: 11, height: 1.6),
         ),
       ],
@@ -167,7 +153,7 @@ class _UpdateSection extends StatelessWidget {
                   icon: const Icon(Icons.download_rounded, size: 18),
                   label: Text('Review selected (${selected.length})'),
                 ),
-                if (source == 'deb')
+                if (source == 'pacman')
                   TextButton(
                     onPressed: c.loading || items.isEmpty
                         ? null
@@ -175,11 +161,11 @@ class _UpdateSection extends StatelessWidget {
                             context,
                             c,
                             title: 'AmogOS 2 Pro system updates',
-                            source: 'deb',
+                            source: 'pacman',
                             operation: 'upgrade-system',
                             request: {
                               'operation': 'upgrade-system',
-                              'source': 'deb',
+                              'source': 'pacman',
                             },
                           ),
                     child: const Text('Review system updates'),

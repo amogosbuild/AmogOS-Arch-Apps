@@ -2,9 +2,9 @@
 import concurrent.futures
 import difflib
 import re
-from . import apt_catalog, appimage_catalog, catalog, flatpak_catalog
+from . import pacman_catalog, appimage_catalog, aur, catalog, flatpak_catalog
 
-MATCHES={"vlc":"org.videolan.VLC","steam-installer":"com.valvesoftware.Steam","gimp":"org.gimp.GIMP","firefox-esr":"org.mozilla.firefox","krita":"org.kde.krita","libreoffice-writer":"org.libreoffice.LibreOffice","blender":"org.blender.Blender","inkscape":"org.inkscape.Inkscape","kdenlive":"org.kde.kdenlive","audacity":"org.audacityteam.Audacity","minecraft-pi-reborn":"com.thebrokenrail.MCPIReborn","discord":"com.discordapp.Discord","heroic":"com.heroicgameslauncher.hgl"}
+MATCHES={"vlc":"org.videolan.VLC","steam":"com.valvesoftware.Steam","gimp":"org.gimp.GIMP","firefox":"org.mozilla.firefox","krita":"org.kde.krita","libreoffice-writer":"org.libreoffice.LibreOffice","blender":"org.blender.Blender","inkscape":"org.inkscape.Inkscape","kdenlive":"org.kde.kdenlive","audacity":"org.audacityteam.Audacity","minecraft-pi-reborn":"com.thebrokenrail.MCPIReborn","discord":"com.discordapp.Discord","heroic":"com.heroicgameslauncher.hgl"}
 
 
 def search_name(text):
@@ -21,17 +21,17 @@ def get(request):
     values=[current];warnings=[]
     known=next((key for key in MATCHES if normalized(key)==normalized(current["name"])),None)
     flat=request["id"] if request["source"]=="flatpak" else MATCHES.get(request["id"]) or MATCHES.get(known)
-    deb=request["id"] if request["source"]=="deb" else next((k for k,v in MATCHES.items() if v==request["id"]),known)
-    def apt_choices():
-        if current.get("aptChoices"):
-            return current["aptChoices"]
+    deb=request["id"] if request["source"]=="pacman" else next((k for k,v in MATCHES.items() if v==request["id"]),known)
+    def pacman_choices():
+        if current.get("pacmanChoices"):
+            return current["pacmanChoices"]
         identity=deb
         if not identity:
-            metadata=apt_catalog.component_metadata()
+            metadata=pacman_catalog.component_metadata()
             identity=next((k for k,v in metadata.items() if v.get("desktopId","").removesuffix(".desktop")==current["id"] or normalized(v.get("name",""))==normalized(current["name"])),None)
         if not identity:
             return []
-        return apt_catalog.alternatives(identity)
+        return pacman_catalog.alternatives(identity)
     def flat_choice():
         if flat:
             return [flatpak_catalog.details(flat)]
@@ -42,8 +42,11 @@ def get(request):
         key=normalized(current["name"])
         matched=[v for v in found if normalized(v["name"])==key or difflib.SequenceMatcher(None,key,normalized(v["name"])).ratio()>.94]
         return sorted(matched,key=lambda v:tuple(int(n) for n in re.findall(r"\d+",v.get("version",""))),reverse=True)[:5]
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
-        futures=[pool.submit(f) for f in (apt_choices,flat_choice,image_choices)]
+    calls=[pacman_choices,flat_choice,image_choices]
+    if request["source"]=="pacman" and aur.enabled():
+        calls.append(lambda:[aur.details(request["id"])] if aur.fetch("/info?arg%5B%5D="+request["id"]) else [])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        futures=[pool.submit(call) for call in calls]
         for f in futures:
             try:
                 values.extend(f.result())

@@ -92,7 +92,7 @@ class StoreController extends ChangeNotifier {
         if (job == null) {
           job = StoreJob(
             title: value['title'] as String? ?? 'Package changes',
-            source: value['source'] as String? ?? 'deb',
+            source: value['source'] as String? ?? 'pacman',
             operation: value['operation'] as String? ?? 'install',
             request: {'id': value['package'], 'transactionId': id},
             review: {},
@@ -131,12 +131,36 @@ class StoreController extends ChangeNotifier {
     }
   }
 
+  bool aurEnabled = false;
+
+  Future<void> loadAurSettings() async {
+    try {
+      final settings = await service.request('aur-settings');
+      aurEnabled = settings['aurEnabled'] == true;
+      changed();
+    } catch (e) {
+      showNotification(clean(e));
+    }
+  }
+
+  Future<void> configureAur(bool enabled) async {
+    try {
+      await service.request('aur-configure', {'enabled': enabled});
+      aurEnabled = enabled;
+      if (!enabled && source == 'aur') source = 'all';
+      changed();
+    } catch (e) {
+      showNotification(clean(e));
+    }
+  }
+
   Future<void> loadSources() async {
     loadingSources = true;
     changed();
     try {
       final data = await service.request('sources');
       name = (data['name'] as String? ?? 'friend').split(' ').first;
+      aurEnabled = (await service.request('aur-settings'))['aurEnabled'] == true;
       flatpakAvailable = data['flatpakInstalled'] != false;
       repositories = [
         for (final v in data['repositories'] ?? [])
@@ -189,6 +213,8 @@ class StoreController extends ChangeNotifier {
     changed();
     if (value == StorePage.updates) {
       loadUpdates();
+    } else if (value == StorePage.settings) {
+      loadAurSettings();
     } else if (value == StorePage.sources) {
       loadSources();
     } else {
@@ -199,7 +225,7 @@ class StoreController extends ChangeNotifier {
   void search(String text) {
     query = text;
     error = null;
-    if (page == StorePage.updates || page == StorePage.sources) {
+    if (page == StorePage.updates || page == StorePage.sources || page == StorePage.settings) {
       page = StorePage.home;
     }
     _searchTimer?.cancel();
@@ -215,7 +241,7 @@ class StoreController extends ChangeNotifier {
 
   void filterRepo(String value) {
     repo = value;
-    if (value.isNotEmpty) source = 'deb';
+    if (value.isNotEmpty) source = 'pacman';
     loadCatalog();
   }
 
@@ -277,7 +303,7 @@ class StoreController extends ChangeNotifier {
     changed();
     try {
       updates = await service.request('updates');
-      for (final source in ['deb', 'flatpak', 'appimage']) {
+      for (final source in ['pacman', 'flatpak', 'appimage']) {
         final keys = updateItems(source).map(updateKey).toSet();
         updateSelections
             .putIfAbsent(source, () => {})
@@ -292,7 +318,7 @@ class StoreController extends ChangeNotifier {
 
   List<Map<String, dynamic>> updateItems(String source) => [
     for (final v
-        in (source == 'deb'
+        in (source == 'pacman'
                 ? (updates['system'] as Map? ?? {})['items']
                 : updates[source]) ??
             [])
@@ -362,13 +388,16 @@ class StoreController extends ChangeNotifier {
       try {
         var body = job.request;
         String action;
-        if (job.source == 'deb' || job.source == 'flatpak') {
-          final prefix = job.source == 'deb' ? 'apt' : 'flatpak';
+        if (job.source == 'aur') {
+          action = 'aur-apply';
+          body = {'id': job.request['id'], 'commit': job.review['commit']};
+        } else if (job.source == 'pacman' || job.source == 'flatpak') {
+          final prefix = job.source == 'pacman' ? 'pacman' : 'flatpak';
           final fresh = await service.request('$prefix-plan', job.request);
           final approved = <String, dynamic>{
             for (final v in job.review['changes'] ?? []) v['id'] as String: v,
           };
-          final unchanged = job.source == 'deb'
+          final unchanged = job.source == 'pacman'
               ? (fresh['changes'] as List).every((v) {
                   final old = approved[v['id']];
                   return old != null &&

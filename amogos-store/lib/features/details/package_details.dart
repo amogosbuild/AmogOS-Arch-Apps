@@ -1,4 +1,4 @@
-// Per-app format choices include only verified available sources and separate APT repositories.
+// Per-app format choices include only verified available sources and separate Pacman repositories.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -104,11 +104,11 @@ class _PackageDetailsState extends State<PackageDetails> {
       if (!mounted || current != generation) return;
       setState(() {
         selected = StorePackage(data);
-        if (selected.source == 'deb' && data['aptChoices'] is List) {
+        if (selected.source == 'pacman' && data['pacmanChoices'] is List) {
           variants = [
-            for (final item in data['aptChoices'])
+            for (final item in data['pacmanChoices'])
               StorePackage(Map<String, dynamic>.from(item)),
-            ...variants.where((item) => item.source != 'deb'),
+            ...variants.where((item) => item.source != 'pacman'),
           ];
         }
         download = selected.downloads.firstOrNull?['number'] as int?;
@@ -176,7 +176,7 @@ class _PackageDetailsState extends State<PackageDetails> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final formats = variants.map((v) => v.source).toSet().toList();
-    final repos = variants.where((v) => v.source == 'deb').toList();
+    final repos = variants.where((v) => v.source == 'pacman').toList();
     final repoKeys = repos.map((v) => v.repo).toSet().toList();
     final images = variants.where((v) => v.source == 'appimage').toList();
     final unavailable =
@@ -299,7 +299,7 @@ class _PackageDetailsState extends State<PackageDetails> {
                                   },
                           ),
                         ),
-                        if (selected.source == 'deb' &&
+                        if (selected.source == 'pacman' &&
                             repoKeys.length > 1) ...[
                           const SizedBox(width: 14),
                           Expanded(
@@ -364,7 +364,7 @@ class _PackageDetailsState extends State<PackageDetails> {
                                 widget.controller.queue.any(
                                   (j) =>
                                       (j.active || j.pending) &&
-                                      j.source == 'deb' &&
+                                      j.source == 'pacman' &&
                                       j.request['id'] == 'flatpak',
                                 )
                             ? null
@@ -374,10 +374,10 @@ class _PackageDetailsState extends State<PackageDetails> {
                                   context,
                                   widget.controller,
                                   title: 'Flatpak',
-                                  source: 'deb',
+                                  source: 'pacman',
                                   operation: 'install',
                                   request: {
-                                    'source': 'deb',
+                                    'source': 'pacman',
                                     'id': 'flatpak',
                                     'operation': 'install',
                                   },
@@ -577,7 +577,7 @@ class _PackageDetailsState extends State<PackageDetails> {
                       padding: EdgeInsets.only(right: 10),
                       child: Text('Preparing package review…'),
                     ),
-                  if (selected.installed && selected.source == 'deb')
+                  if (selected.installed && selected.source == 'pacman')
                     TextButton.icon(
                       onPressed: busy || detailLoading
                           ? null

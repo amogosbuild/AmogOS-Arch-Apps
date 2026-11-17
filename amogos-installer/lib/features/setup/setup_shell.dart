@@ -58,7 +58,7 @@ class _SetupShellState extends State<SetupShell> {
                         ],
                         Expanded(
                           child: Text(
-                            'AmogOS 2 Pro',
+                            'AmogOS 2 Pro (Arch)',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleLarge
@@ -258,7 +258,7 @@ class _SetupShellState extends State<SetupShell> {
       1 => LocationPage(controller: c),
       2 => KeyboardPage(controller: c),
       3 => StoragePage(controller: c),
-      4 => AccountPage(controller: c),
+      4 => const FirstBootPage(),
       5 => ReviewPage(controller: c),
       _ => InstallPage(controller: c, musicOpen: musicOpen),
     };
@@ -377,7 +377,7 @@ class _SetupShellState extends State<SetupShell> {
         c.complete
             ? (c.preview ? 'Preview complete' : 'Restart now')
             : c.step == 5
-            ? 'Install AmogOS 2 Pro'
+            ? 'Install AmogOS 2 Pro (Arch)'
             : c.installing
             ? 'Installing…'
             : c.event.error
@@ -396,7 +396,7 @@ class _SetupShellState extends State<SetupShell> {
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: purple.withValues(alpha: .15),
+            color: ocean.withValues(alpha: .15),
             blurRadius: 22,
             offset: const Offset(0, 7),
           ),

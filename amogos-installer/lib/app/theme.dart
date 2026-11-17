@@ -1,10 +1,10 @@
 // Material 3 surfaces provide distinct light and pitch-black appearances.
 import 'package:flutter/material.dart';
 
-const pink = Color(0xFFF067AD);
-const purple = Color(0xFF8757F3);
+const cyan = Color(0xFF18BCDB);
+const ocean = Color(0xFF1278B2);
 const installGradient = LinearGradient(
-  colors: [pink, purple],
+  colors: [cyan, ocean],
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
 );
@@ -12,25 +12,25 @@ const installGradient = LinearGradient(
 ThemeData installerTheme(bool dark) {
   final scheme =
       ColorScheme.fromSeed(
-        seedColor: purple,
+        seedColor: ocean,
         brightness: dark ? Brightness.dark : Brightness.light,
       ).copyWith(
-        surface: dark ? Colors.black : const Color(0xFFFAF9FD),
+        surface: dark ? Colors.black : const Color(0xFFF1FAFD),
         surfaceContainerLowest: dark ? Colors.black : Colors.white,
         surfaceContainerLow: dark
-            ? const Color(0xFF101014)
-            : const Color(0xFFF2EFF9),
+            ? const Color(0xFF0E181D)
+            : const Color(0xFFE3F4FA),
         surfaceContainer: dark
-            ? const Color(0xFF17171C)
-            : const Color(0xFFEEEBF6),
+            ? const Color(0xFF14242D)
+            : const Color(0xFFDAEFF8),
         outlineVariant: dark
-            ? const Color(0xFF2A2932)
-            : const Color(0xFFE6E1EF),
-        primary: dark ? const Color(0xFFC4ACFF) : const Color(0xFF7542DB),
-        onSurface: dark ? const Color(0xFFF5F2FA) : const Color(0xFF24212D),
+            ? const Color(0xFF294452)
+            : const Color(0xFFC9E3EE),
+        primary: dark ? const Color(0xFF82E6F7) : const Color(0xFF005D89),
+        onSurface: dark ? const Color(0xFFEFFAFF) : const Color(0xFF152C37),
         onSurfaceVariant: dark
-            ? const Color(0xFFA7A2B2)
-            : const Color(0xFF777180),
+            ? const Color(0xFFA2BDCA)
+            : const Color(0xFF4C6774),
       );
   return ThemeData(
     useMaterial3: true,

@@ -1,0 +1,52 @@
+#!/usr/bin/python3
+import fcntl
+import json
+import os
+import pathlib
+import subprocess
+import sys
+from state import ROOT, SESSIONS, TEMP_USER, account, command, read, record, validate
+
+
+def finish():
+    if os.geteuid()!=0 or len(sys.argv)!=1:
+        raise ValueError('Run this action from the onboarding session.')
+    with (ROOT/'lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        pending=read(ROOT/'pending.json')
+        temporary=account(TEMP_USER)
+        if not temporary or pending.get('uid')!=temporary.pw_uid or os.environ.get('PKEXEC_UID')!=str(temporary.pw_uid):
+            raise ValueError('This session cannot complete onboarding.')
+        if (ROOT/'handoff.json').exists() or (ROOT/'completed.json').exists():
+            raise ValueError('Account setup has already finished.')
+        raw=sys.stdin.read(8193)
+        if len(raw)>8192:
+            raise ValueError('The account settings are too large.')
+        data=json.loads(raw)
+        name,username,password,theme=validate(data)
+        desktop=pending['desktop']
+        session=SESSIONS[desktop]
+        if not any((pathlib.Path('/usr/share')/folder/session).is_file() for folder in ('xsessions','wayland-sessions')):
+            raise ValueError('The selected desktop session is unavailable.')
+        previous=read(ROOT/'creating.json')
+        existing=account(username)
+        if existing and (previous.get('username')!=username or existing.pw_dir!='/home/'+username):
+            raise ValueError('That username already exists. Choose another.')
+        if previous and previous.get('username')!=username:
+            raise ValueError('Finish setup with the username from your previous attempt.')
+        record(ROOT/'creating.json',{'username':username})
+        if existing is None:
+            command('useradd','--create-home','--user-group','--shell','/bin/bash','--comment',name,'--groups','wheel','--',username)
+        command('chpasswd',input=f'{username}:{password}\n',stdout=subprocess.DEVNULL)
+        preferences={'desktop':desktop,'theme':theme,'largerText':data['largerText'],'highContrast':data['highContrast']}
+        profile='import pathlib,sys; target=pathlib.Path.home()/".config/amogos-arch/session.json"; target.parent.mkdir(parents=True,exist_ok=True); target.write_text(sys.stdin.read())'
+        command('runuser','-u',username,'--','python3','-I','-c',profile,input=json.dumps(preferences))
+        record(ROOT/'handoff.json',{'uid':temporary.pw_uid,'username':username,'desktop':desktop,'autoLogin':data['autoLogin']})
+        command('systemctl','--no-block','start','amogos-arch-onboarding-finish.service')
+
+
+try:
+    finish()
+except (KeyError,OSError,ValueError,subprocess.CalledProcessError) as error:
+    print(str(error),flush=True)
+    raise SystemExit(1)

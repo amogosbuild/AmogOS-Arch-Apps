@@ -1,0 +1,12 @@
+# Finish onboarding outside the temporary desktop session.
+[Unit]
+Description=Remove the completed AmogOS Arch setup session
+After=systemd-logind.service
+ConditionPathExists=/var/lib/amogos-arch-onboarding/handoff.json
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/amogos-arch-onboarding/cleanup
+
+[Install]
+WantedBy=multi-user.target

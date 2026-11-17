@@ -1,4 +1,4 @@
-// Sources exposes existing APT repositories, the official Flathub remote, and AppImageHub.
+// Sources exposes existing Pacman repositories, the official Flathub remote, and AppImageHub.
 import 'package:flutter/material.dart';
 
 import '../../app/store_theme.dart';
@@ -37,7 +37,7 @@ class SourcesPage extends StatelessWidget {
           StoreNotice(c.error!, onRetry: c.loadSources),
           const SizedBox(height: 16),
         ],
-        const SectionHeading('APT repositories'),
+        const SectionHeading('Pacman repositories'),
         const SizedBox(height: 15),
         for (final repo in c.repositories)
           Padding(
@@ -67,7 +67,7 @@ class SourcesPage extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 5),
                   child: Text(
                     repo['trusted'] == true
-                        ? 'Signed repository · Debian packages'
+                        ? 'Signed repository · Arch packages'
                         : 'Repository trust needs attention',
                     style: const TextStyle(fontSize: 10),
                   ),
@@ -75,7 +75,7 @@ class SourcesPage extends StatelessWidget {
                 trailing: TextButton(
                   onPressed: () {
                     c.repo = repo['id'];
-                    c.source = 'deb';
+                    c.source = 'pacman';
                     c.selectPage(StorePage.home);
                   },
                   child: const Text('Browse'),
@@ -85,7 +85,7 @@ class SourcesPage extends StatelessWidget {
           ),
         if (!c.loadingSources && c.repositories.isEmpty)
           const StoreNotice(
-            'No APT repository indexes are available. Check for system updates to refresh them.',
+            'No Pacman repository indexes are available. Check for system updates to refresh them.',
           ),
         const SizedBox(height: 28),
         const SectionHeading('Flatpak', color: Color(0xff25c985)),
@@ -100,10 +100,10 @@ class SourcesPage extends StatelessWidget {
                 context,
                 c,
                 title: 'Flatpak',
-                source: 'deb',
+                source: 'pacman',
                 operation: 'install',
                 request: {
-                  'source': 'deb',
+                  'source': 'pacman',
                   'id': 'flatpak',
                   'operation': 'install',
                 },

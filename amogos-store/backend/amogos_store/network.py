@@ -43,7 +43,7 @@ def open_url(url, body=None, timeout=35):
 
 def cached(url, body=None):
     key=hashlib.sha256((url+json.dumps(body,sort_keys=True)).encode()).hexdigest()
-    path=pathlib.Path.home()/".cache/amogos-store/catalog"/(key+".json")
+    path=pathlib.Path.home()/".cache/amogos-arch-store/catalog"/(key+".json")
     try:
         return json.loads(path.read_text())
     except (OSError,ValueError):
@@ -52,7 +52,7 @@ def cached(url, body=None):
 
 def fetch(url, body=None, age=900):
     key = hashlib.sha256((url+json.dumps(body, sort_keys=True)).encode()).hexdigest()
-    cache = pathlib.Path.home()/".cache/amogos-store/catalog"
+    cache = pathlib.Path.home()/".cache/amogos-arch-store/catalog"
     cache.mkdir(parents=True, exist_ok=True, mode=0o700)
     path = cache/(key+".json")
     if path.is_file() and time.time()-path.stat().st_mtime < age:

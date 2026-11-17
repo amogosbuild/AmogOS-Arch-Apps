@@ -1,0 +1,12 @@
+# First-boot setup has no external Flutter packages at runtime.
+name: amogos_arch_onboarding
+description: First-boot setup for AmogOS 2 Pro Arch
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: '>=3.13.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  uses-material-design: true

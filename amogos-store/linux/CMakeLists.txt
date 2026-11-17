@@ -1,8 +1,8 @@
-# Native build configuration for AmogOS App Store.
+# Native build configuration for AmogOS Arch App Store.
 cmake_minimum_required(VERSION 3.13)
 project(runner LANGUAGES CXX)
 set(BINARY_NAME "amogos_store")
-set(APPLICATION_ID "amogos.appstore")
+set(APPLICATION_ID "amogosarch.appstore")
 cmake_policy(SET CMP0063 NEW)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 if(FLUTTER_TARGET_PLATFORM_SYSROOT)

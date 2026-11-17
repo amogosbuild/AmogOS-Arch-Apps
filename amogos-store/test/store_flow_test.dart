@@ -161,16 +161,16 @@ void main() {
       );
       expect(renderedPicker.items!.map((v) => v.value).toSet(), {
         'flatpak',
-        'deb',
+        'pacman',
       });
       expect(renderedPicker.items!.any((v) => v.value == 'appimage'), isFalse);
-      picker.onChanged!('deb');
+      picker.onChanged!('pacman');
       await tester.pump(const Duration(milliseconds: 450));
       expect(
         tester
             .widget<DropdownButtonFormField<String>>(fields.first)
             .initialValue,
-        'deb',
+        'pacman',
       );
       Navigator.of(targetContext).pop();
       await tester.pump(const Duration(milliseconds: 400));
@@ -283,7 +283,7 @@ void main() {
   });
 
   testWidgets(
-    'three-format apps expose APT, Flatpak, and compatible AppImage builds',
+    'three-format apps expose Pacman, Flatpak, and compatible AppImage builds',
     (tester) async {
       size(tester, const Size(1024, 768));
       final key = GlobalKey(), c = await start(tester, key: key);
@@ -292,7 +292,7 @@ void main() {
       );
       final choices = await c.service.request('alternatives', krita.request);
       expect((choices['items'] as List).map((v) => v['source']).toSet(), {
-        'deb',
+        'pacman',
         'flatpak',
         'appimage',
       });
@@ -312,7 +312,7 @@ void main() {
             .first,
       );
       expect(actual.items!.map((v) => v.value).toSet(), {
-        'deb',
+        'pacman',
         'flatpak',
         'appimage',
       });

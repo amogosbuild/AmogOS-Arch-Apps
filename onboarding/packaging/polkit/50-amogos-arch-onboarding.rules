@@ -1,0 +1,7 @@
+// Only the local, active temporary account can call the handoff helper.
+polkit.addRule(function(action, subject) {
+    if (action.id === "amogosarch.onboarding.finish" &&
+        subject.local && subject.active && subject.user === "amogos-setup") {
+        return polkit.Result.YES;
+    }
+});

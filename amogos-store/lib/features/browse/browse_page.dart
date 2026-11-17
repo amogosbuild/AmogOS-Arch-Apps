@@ -72,7 +72,7 @@ class BrowsePage extends StatelessWidget {
           home
               ? 'A few favourites. A whole world to explore.'
               : c.page == StorePage.installed
-              ? 'All installed APT packages, Flatpak applications and runtimes, and AppImages managed by this store.'
+              ? 'All installed Pacman packages, Flatpak applications and runtimes, and AppImages managed by this store.'
               : c.page == StorePage.fresh
               ? 'Recently added on Flathub and AppImageHub.'
               : 'Great software, from the source you choose.',

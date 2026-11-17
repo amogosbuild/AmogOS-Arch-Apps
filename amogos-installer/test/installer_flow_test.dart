@@ -144,15 +144,9 @@ void main() {
         c.rootGiB = 64;
       });
       await c.next();
-      c.change(() {
-        c.fullName = 'Alex';
-        c.username = 'alex';
-        c.password = 'test-passphrase';
-        c.passwordAgain = 'test-passphrase';
-      });
       await c.next();
       await tester.pump(const Duration(milliseconds: 300));
-      await tester.tap(find.text('Install AmogOS 2 Pro'));
+      await tester.tap(find.text('Install AmogOS 2 Pro (Arch)'));
       await tester.pump(const Duration(milliseconds: 300));
       final start = find.widgetWithText(FilledButton, 'Start preview');
       expect(tester.widget<FilledButton>(start).onPressed, isNull);

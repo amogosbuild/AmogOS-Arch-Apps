@@ -1,0 +1,3 @@
+#!/bin/sh
+test "$(id -un)" = amogos-setup || exit 0
+exec /usr/lib/amogos-arch-onboarding/app/amogos_arch_onboarding

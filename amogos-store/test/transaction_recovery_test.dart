@@ -18,7 +18,7 @@ class RecoveredService extends StoreService {
         'items': [
           {
             'transactionId': 'background-id',
-            'source': 'deb',
+            'source': 'pacman',
             'operation': 'install',
             'package': 'kdenlive',
             'title': 'Install Kdenlive',
@@ -31,7 +31,7 @@ class RecoveredService extends StoreService {
         ],
       };
     }
-    if (action == 'apt-plan') {
+    if (action == 'pacman-plan') {
       return {'changes': [], 'token': 'fresh'};
     }
     return {};
@@ -59,7 +59,7 @@ void main() {
       await controller.enqueue(
         StoreJob(
           title: 'VLC',
-          source: 'deb',
+          source: 'pacman',
           operation: 'install',
           request: {'id': 'vlc'},
           review: {'changes': []},

@@ -32,7 +32,7 @@ class PackageIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(size * .28),
       ),
       child: Icon(
-        package.source == 'deb'
+        package.source == 'pacman'
             ? Icons.inventory_2_rounded
             : package.source == 'appimage'
             ? Icons.rocket_launch_rounded
@@ -161,6 +161,7 @@ class SourceFilters extends StatelessWidget {
     crossAxisAlignment: WrapCrossAlignment.center,
     children: [
       for (final entry in sourceLabels.entries)
+        if (entry.key != "aur" || (controller.aurEnabled && controller.page != StorePage.installed))
         ChoiceChip(
           label: Text(entry.value),
           selected: controller.source == entry.key,
@@ -173,7 +174,7 @@ class SourceFilters extends StatelessWidget {
         ),
       if (controller.page != StorePage.installed &&
           controller.repositories.isNotEmpty &&
-          (controller.source == 'deb' || controller.source == 'all'))
+          (controller.source == 'pacman' || controller.source == 'all'))
         SizedBox(
           width: (MediaQuery.sizeOf(context).width - 64).clamp(100, 260),
           child: DropdownButtonFormField<String>(
@@ -181,7 +182,7 @@ class SourceFilters extends StatelessWidget {
             initialValue: controller.repo,
             isExpanded: true,
             decoration: const InputDecoration(
-              labelText: 'APT repository',
+              labelText: 'Pacman repository',
               isDense: true,
             ),
             items: [

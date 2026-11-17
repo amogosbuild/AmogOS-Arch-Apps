@@ -1,0 +1,11 @@
+# AmogOS desktop software center and system updates.
+[Desktop Entry]
+Type=Application
+Name=AmogOS Arch App Store
+Comment=Discover applications and update AmogOS 2 Pro
+Exec=/usr/bin/amogos-arch-appstore
+Icon=amogosarch.appstore
+Terminal=false
+Categories=System;PackageManager;
+Keywords=Apps;Software;Updates;Flatpak;AppImage;Pacman;
+StartupWMClass=amogosarch.appstore

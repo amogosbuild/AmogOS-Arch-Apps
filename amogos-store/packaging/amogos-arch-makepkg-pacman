@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+case "$1" in pacman|/usr/bin/pacman) shift ;; *) exit 2 ;; esac
+for option in "$@"; do
+    case "$option" in
+        -S|--sync) exec /usr/bin/pacman --sysupgrade "$@" ;;
+        -U|--upgrade) exec /usr/bin/pacman --config /usr/share/amogos-arch-store/aur-pacman.conf "$@" ;;
+    esac
+done
+exit 2

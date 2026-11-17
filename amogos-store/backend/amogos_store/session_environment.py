@@ -35,7 +35,7 @@ def desktop_environments():
         if not directory.name.isdigit():
             continue
         try:
-            if directory.stat().st_uid!=uid or (directory/"comm").read_text().strip() not in ("plasmashell","kwin_wayland","kwin_x11","gnome-shell","xfce4-session"):
+            if directory.stat().st_uid!=uid or (directory/"comm").read_text().strip() not in ("plasmashell","kwin_wayland","kwin_x11","gnome-shell","xfce4-session","lxqt-session"):
                 continue
             with (directory/"environ").open("rb") as file:
                 raw=file.read(65536)

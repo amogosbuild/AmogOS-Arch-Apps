@@ -24,7 +24,7 @@ class ReviewService extends StoreService {
 
 void main() {
   testWidgets(
-    'selected APT update excludes unselected packages and other formats',
+    'selected Pacman update excludes unselected packages and other formats',
     (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(640, 480);
@@ -36,16 +36,16 @@ void main() {
       await tester.pumpWidget(StoreApp(preview: true, controller: controller));
       controller.selectPage(StorePage.updates);
       await tester.pumpAndSettle();
-      final apt = controller.updateItems('deb');
+      final apt = controller.updateItems('pacman');
       controller.selectUpdate(
-        'deb',
+        'pacman',
         StoreController.updateKey(apt.first),
         true,
       );
       controller.selectAllUpdates('appimage', true);
       await tester.pumpAndSettle();
       final context = tester.element(find.byType(Scaffold).first);
-      final review = reviewSelectedUpdates(context, controller, 'deb');
+      final review = reviewSelectedUpdates(context, controller, 'pacman');
       await tester.pumpAndSettle();
       expect(service.plans.single['packages'], [apt.first['id']]);
       expect(service.plans.single['operation'], 'update-selected');

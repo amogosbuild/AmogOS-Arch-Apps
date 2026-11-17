@@ -5,11 +5,11 @@ import pathlib
 import sys
 
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
-from amogos_store import alternatives, apt_transactions, appimages, catalog, flatpak_transactions, inventory, updates, jobs
+from amogos_store import alternatives, aur, pacman_transactions, appimages, catalog, flatpak_transactions, inventory, updates, jobs
 from amogos_store.runtime import StoreError
 
-PRIVILEGED={"apt-plan","apt-apply","refresh","flatpak-plan","flatpak-apply","flatpak-source"}
-STREAMED={"apt-apply","flatpak-apply","refresh","appimage-install","appimage-remove"}
+PRIVILEGED={"pacman-plan","pacman-apply","refresh","flatpak-plan","flatpak-apply","flatpak-source"}
+STREAMED={"pacman-apply","flatpak-apply","refresh","appimage-install","appimage-remove","aur-apply"}
 
 
 def main():
@@ -27,6 +27,10 @@ def main():
         raise StoreError("System changes require App Store authentication.")
     if action in jobs.ACTIONS and not user_flatpak and jobs.enabled():
         return jobs.start(action,request)
+    if action=="aur-settings": return {"aurEnabled":aur.enabled()}
+    if action=="aur-configure": return aur.configure(request.get("enabled"))
+    if action=="aur-plan": return aur.plan(request)
+    if action=="aur-apply": return aur.apply(request)
     if action=="transactions": return jobs.listing()
     if action=="catalog": return catalog.search(request)
     if action=="installed": return inventory.search(request)
@@ -35,9 +39,9 @@ def main():
     if action=="sources": return catalog.sources()
     if action=="updates":
         return updates.get()
-    if action=="apt-plan": return apt_transactions.plan(request)
-    if action=="apt-apply": return apt_transactions.apply(request)
-    if action=="refresh": return apt_transactions.refresh()
+    if action=="pacman-plan": return pacman_transactions.plan(request)
+    if action=="pacman-apply": return pacman_transactions.apply(request)
+    if action=="refresh": return pacman_transactions.refresh()
     if action=="flatpak-plan": return flatpak_transactions.plan(request)
     if action=="flatpak-apply": return flatpak_transactions.apply(request)
     if action=="flatpak-source": return flatpak_transactions.configure(request.get("enabled"))

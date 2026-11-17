@@ -1,0 +1,8 @@
+# Launch Steam directly into its controller interface.
+[Desktop Entry]
+Type=Application
+Name=Steam Big Picture
+Exec=steam -bigpicture
+Icon=steam
+Terminal=false
+Categories=Game;

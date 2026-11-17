@@ -36,9 +36,9 @@ def launcher(key, entry, categories):
     path=directory/("amogos-appimage-"+key+".desktop")
     title=plain(entry.get("name","Application"))
     title=" ".join(title.split()).replace("\\","\\\\")
-    text=("# AppImage integrated by AmogOS App Store.\n[Desktop Entry]\nType=Application\nName="+title+
-          "\nExec=/usr/libexec/amogos-appimage-open "+key+
-          "\nTryExec=/usr/libexec/amogos-appimage-open\nIcon=application-x-executable\nTerminal=false\nCategories="+
+    text=("# AppImage integrated by AmogOS Arch App Store.\n[Desktop Entry]\nType=Application\nName="+title+
+          "\nExec=/usr/libexec/amogos-arch-appimage-open "+key+
+          "\nTryExec=/usr/libexec/amogos-arch-appimage-open\nIcon=application-x-executable\nTerminal=false\nCategories="+
           ";".join(categories)+";\nX-AmogOS-AppImageId="+key+"\n")
     if path.is_symlink() or not path.exists() or path.read_text()!=text:
         fd,temporary=tempfile.mkstemp(prefix=".amogos-launcher-",dir=directory)

@@ -153,7 +153,7 @@ def disk_by_path(runner, path, *, inspect=True):
 
 def online():
     try:
-        with socket.create_connection(("deb.debian.org", 443), timeout=3):
+        with socket.create_connection(("geo.mirror.pkgbuild.com", 443), timeout=3):
             return True
     except OSError:
         return False

@@ -1,0 +1,2 @@
+# Only authenticated wheel users administer the installed system.
+%wheel ALL=(ALL:ALL) ALL

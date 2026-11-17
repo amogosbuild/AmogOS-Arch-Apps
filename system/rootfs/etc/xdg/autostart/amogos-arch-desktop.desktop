@@ -1,0 +1,6 @@
+# Apply wallpaper and desktop-specific defaults after sign-in.
+[Desktop Entry]
+Type=Application
+Name=AmogOS Arch desktop defaults
+Exec=/usr/lib/amogos-arch/session
+NoDisplay=true

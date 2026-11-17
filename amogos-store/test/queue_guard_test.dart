@@ -15,7 +15,7 @@ class ChangedPackages extends StoreService {
     String action, [
     Map<String, dynamic> body = const {},
   ]) async {
-    if (action == 'apt-plan') {
+    if (action == 'pacman-plan') {
       return {
         'changes': changes,
         'token': 'new-review',
@@ -61,7 +61,7 @@ void main() {
     final controller = StoreController(service: service);
     final job = StoreJob(
       title: 'Wanted',
-      source: 'deb',
+      source: 'pacman',
       operation: 'install',
       request: {'id': 'wanted'},
       review: {
@@ -80,7 +80,7 @@ void main() {
     final controller = StoreController(service: service);
     final job = StoreJob(
       title: 'Wanted',
-      source: 'deb',
+      source: 'pacman',
       operation: 'install',
       request: {'id': 'wanted'},
       review: {

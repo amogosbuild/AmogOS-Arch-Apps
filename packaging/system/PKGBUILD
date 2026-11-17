@@ -1,0 +1,17 @@
+# Package the shared Plymouth theme, numbered wallpapers, Plasma layout and shell aliases.
+pkgname=amogos-arch-system
+pkgver=2.0.0
+pkgrel=2
+pkgdesc='Persistent AmogOS 2 Pro Arch desktop and boot integration'
+arch=(any)
+url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
+license=(custom)
+options=(!strip !debug)
+depends=(python plymouth fastfetch sudo)
+install=post-install
+
+package() {
+    cp -a "$AMOGOS_APPS_ROOT/system/rootfs/." "$pkgdir/"
+    chmod 440 "$pkgdir/etc/sudoers.d/70-amogos-arch-wheel"
+    install -Dm644 "$AMOGOS_APPS_ROOT/ARTWORK-LICENSE.md" "$pkgdir/usr/share/licenses/$pkgname/ARTWORK-LICENSE.md"
+}

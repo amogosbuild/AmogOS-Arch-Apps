@@ -1,0 +1,6 @@
+# Launch the first-boot app once in the temporary session.
+[Desktop Entry]
+Type=Application
+Name=Set up AmogOS Arch
+Exec=/usr/lib/amogos-arch-onboarding/start
+NoDisplay=true

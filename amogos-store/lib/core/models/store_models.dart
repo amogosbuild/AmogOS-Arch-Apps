@@ -1,5 +1,5 @@
 // Typed catalog entries and queue records preserve the selected package source.
-enum StorePage { home, categories, updates, sources, fresh, installed }
+enum StorePage { home, categories, updates, sources, fresh, installed, settings }
 
 const pageLabels = [
   'Home',
@@ -8,10 +8,12 @@ const pageLabels = [
   'Sources',
   'New',
   'Installed',
+  'Settings',
 ];
 const sourceLabels = {
   'all': 'All',
-  'deb': 'APT',
+  'pacman': 'Pacman',
+  'aur': 'AUR',
   'flatpak': 'Flatpak',
   'appimage': 'AppImage',
 };
@@ -30,7 +32,7 @@ class StorePackage {
   StorePackage(Map<String, dynamic> value) : data = Map.of(value);
   final Map<String, dynamic> data;
   String get id => data['id']?.toString() ?? '';
-  String get source => data['source'] ?? 'deb';
+  String get source => data['source'] ?? 'pacman';
   String get repo => data['repo'] ?? '';
   String get name => data['name'] ?? id;
   String get summary => data['summary'] ?? '';

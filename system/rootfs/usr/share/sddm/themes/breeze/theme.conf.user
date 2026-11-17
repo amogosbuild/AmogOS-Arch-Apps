@@ -1,0 +1,4 @@
+# Use the AmogOS Arch wallpaper on the sign-in screen.
+[General]
+background=/usr/share/wallpapers/AmogOSArch/5.png
+type=image

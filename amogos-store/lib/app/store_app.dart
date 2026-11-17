@@ -41,7 +41,7 @@ class _StoreAppState extends State<StoreApp> {
     valueListenable: controller.darkTheme,
     child: StoreShell(controller: controller),
     builder: (context, dark, child) => MaterialApp(
-      title: 'AmogOS App Store',
+      title: 'AmogOS Arch App Store',
       navigatorKey: navigatorKey,
       builder: (context, child) => NotificationPillHost(
         controller: controller,

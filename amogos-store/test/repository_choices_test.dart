@@ -1,4 +1,4 @@
-// Local APT repository choices remain usable while remote software catalogs are still loading.
+// Local Pacman repository choices remain usable while remote software catalogs are still loading.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ class SlowRemoteService extends StoreService {
   Map<String, dynamic> item(String repo) => {
     'id': 'vlc',
     'name': 'VLC',
-    'source': 'deb',
+    'source': 'pacman',
     'repo': repo,
     'version': '3.0.24',
     'summary': 'Video player',
@@ -32,14 +32,14 @@ class SlowRemoteService extends StoreService {
       return remote.future;
     }
     if (action == 'details') {
-      return {...item(body['repo']), 'aptChoices': choices};
+      return {...item(body['repo']), 'pacmanChoices': choices};
     }
     return {};
   }
 }
 
 void main() {
-  testWidgets('main APT repo appears before slow remote catalogs finish', (
+  testWidgets('main Pacman repo appears before slow remote catalogs finish', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1280, 900);

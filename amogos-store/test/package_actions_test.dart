@@ -14,7 +14,7 @@ class ActionService extends StoreService {
   Map<String, dynamic> get item => {
     'id': 'gimp',
     'name': 'GIMP',
-    'source': 'deb',
+    'source': 'pacman',
     'repo': 'deb.debian.org|stable|main',
     'installed': installed,
   };
@@ -29,7 +29,7 @@ class ActionService extends StoreService {
         'items': [item],
       };
     }
-    if (action == 'apt-plan') {
+    if (action == 'pacman-plan') {
       plan = body;
       if (fail) {
         throw StateError('Repository dependency failure');
@@ -83,7 +83,7 @@ void main() {
       },
     );
   }
-  testWidgets('installed APT app offers a repair review', (tester) async {
+  testWidgets('installed Pacman app offers a repair review', (tester) async {
     final service = ActionService(installed: true);
     final controller = StoreController(service: service);
     await tester.pumpWidget(
@@ -106,7 +106,7 @@ void main() {
   test('queue activity distinguishes removals, repair, update and install', () {
     StoreJob job(String op) => StoreJob(
       title: 'App',
-      source: 'deb',
+      source: 'pacman',
       operation: op,
       request: {},
       review: {},

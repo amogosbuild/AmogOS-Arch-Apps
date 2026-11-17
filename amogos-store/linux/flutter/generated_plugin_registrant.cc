@@ -1,4 +1,9 @@
-// Native AmogOS App Store window integration.
+//
+//  Generated file. Do not edit.
+//
+
+// clang-format off
+
 #include "generated_plugin_registrant.h"
 
 

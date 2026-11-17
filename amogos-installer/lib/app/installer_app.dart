@@ -21,7 +21,7 @@ class _InstallerAppState extends State<InstallerApp> {
     valueListenable: controller.darkTheme,
     child: SetupShell(controller: controller, music: music),
     builder: (context, dark, child) => MaterialApp(
-      title: 'Install AmogOS 2 Pro',
+      title: 'Install AmogOS 2 Pro (Arch)',
       debugShowCheckedModeBanner: false,
       theme: installerTheme(false),
       darkTheme: installerTheme(true),
