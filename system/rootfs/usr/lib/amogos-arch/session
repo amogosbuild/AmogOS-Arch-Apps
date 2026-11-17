@@ -78,7 +78,7 @@ def lxqt():
         panel.parent.mkdir(parents=True,exist_ok=True)
         if not panel.exists():
             panel.write_bytes((defaults/'lxqt/panel.conf').read_bytes())
-        ini(config/'lxqt/lxqt.conf',{'General':{'icon_theme':'Papirus-Dark' if dark else 'Papirus','theme':'Breeze'}})
+        ini(config/'lxqt/lxqt.conf',{'General':{'icon_theme':'Papirus-Dark' if dark else 'Papirus','theme':'dark' if dark else 'light'}})
         ini(config/'pcmanfm-qt/lxqt/settings.conf',{'Desktop':{'Wallpaper':str(wallpaper),'WallpaperMode':'zoom'}})
         ini(config/'gtk-3.0/settings.ini',{'Settings':{'gtk-icon-theme-name':'Papirus-Dark' if dark else 'Papirus'}})
         launchers=config/'plank/dock1/launchers'
