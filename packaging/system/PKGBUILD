@@ -12,7 +12,7 @@ install=post-install
 
 package() {
     cp -a "$AMOGOS_APPS_ROOT/system/rootfs/." "$pkgdir/"
-    install -Dm644 "$pkgdir/usr/share/amogos-arch/lxqt/panel.conf" "$pkgdir/etc/xdg/lxqt/panel.conf"
+    install -Dm644 "$pkgdir/usr/share/amogos-arch/lxqt/panel.conf" "$pkgdir/etc/skel/.config/lxqt/panel.conf"
     chmod 440 "$pkgdir/etc/sudoers.d/70-amogos-arch-wheel"
     install -Dm644 "$AMOGOS_APPS_ROOT/ARTWORK-LICENSE.md" "$pkgdir/usr/share/licenses/$pkgname/ARTWORK-LICENSE.md"
 }
