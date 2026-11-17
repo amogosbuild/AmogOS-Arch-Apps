@@ -1,7 +1,7 @@
 # Install the Flutter onboarding app and its narrowly scoped privileged handoff.
 pkgname=amogos-arch-onboarding
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='First-boot account and desktop setup for AmogOS Arch'
 arch=(x86_64)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'

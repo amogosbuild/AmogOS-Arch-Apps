@@ -137,7 +137,7 @@ class _OnboardingState extends State<Onboarding> {
     ),
     home: Builder(builder: (context) {
       final colors = Theme.of(context).colorScheme;
-      final wallpaper = '/usr/share/wallpapers/AmogOSArch/${dark ? '5' : '6'}.png';
+      const wallpaper = '/usr/share/wallpapers/AmogOSArch/2.png';
       return Scaffold(
         body: Stack(fit: StackFit.expand, children: [
           Image.file(File(wallpaper), fit: BoxFit.cover, excludeFromSemantics: true,
