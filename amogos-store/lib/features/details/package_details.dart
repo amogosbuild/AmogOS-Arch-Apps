@@ -7,6 +7,7 @@ import '../../core/controllers/store_controller.dart';
 import '../../core/models/store_models.dart';
 import '../widgets/store_widgets.dart';
 import 'transaction_review.dart';
+import 'uninstall_options.dart';
 
 Future<void> showPackage(
   BuildContext context,
@@ -121,7 +122,7 @@ class _PackageDetailsState extends State<PackageDetails> {
     if (mounted && current == generation) setState(() => detailLoading = false);
   }
 
-  Future<void> operate(String operation) async {
+  Future<void> operate(String operation, {bool fullUninstall = false}) async {
     setState(() {
       busy = true;
       error = null;
@@ -132,6 +133,7 @@ class _PackageDetailsState extends State<PackageDetails> {
     final request = {
       ...selected.request,
       'operation': operation,
+      if (fullUninstall) 'fullUninstall': true,
       if (build != null) ...{
         'download': build['number'],
         'filename': build['name'],
@@ -597,11 +599,21 @@ class _PackageDetailsState extends State<PackageDetails> {
                       label: const Text('Reinstall / change build'),
                     ),
                   if (selected.installed && !selected.runtime)
-                    TextButton.icon(
-                      onPressed: busy ? null : () => operate('remove'),
-                      icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                      label: const Text('Remove'),
-                    ),
+                    if (selected.source == 'pacman' || selected.source == 'aur')
+                      UninstallOptions(
+                        enabled: !busy && !detailLoading,
+                        onSelected: (full) =>
+                            operate('remove', fullUninstall: full),
+                      )
+                    else
+                      TextButton.icon(
+                        onPressed: busy ? null : () => operate('remove'),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                        ),
+                        label: const Text('Remove'),
+                      ),
 
                   if (selected.installed && !selected.runtime)
                     OutlinedButton(

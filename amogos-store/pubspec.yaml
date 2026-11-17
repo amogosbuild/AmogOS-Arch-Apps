@@ -2,7 +2,7 @@
 name: amogos_store
 description: AmogOS 2 Pro applications and system updates.
 publish_to: none
-version: 0.1.6+7
+version: 0.1.6+8
 environment:
   sdk: '>=3.13.0 <4.0.0'
 dependencies:

@@ -13,7 +13,13 @@ The store uses Pacman for Arch, AmogOS and Chaotic-AUR packages. It supports
 Flathub and AppImageHub and keeps their updates separate. Settings enables
 direct AUR recipes for the current user. The store displays the PKGBUILD and
 checks the reviewed Git commit before makepkg runs as the desktop user.
-Pacman software installation includes pending system upgrades.
+Pacman software installation includes pending system upgrades. Installed Pacman
+and AUR packages offer Uninstall or Full uninstall (-Rns). The review lists
+every package Pacman will remove, including unused dependencies. Full uninstall
+removes package-owned configuration without creating .pacsave backups and keeps
+files in the user's home folder. Shared dependencies and explicitly installed
+packages follow Pacman's normal removal rules. The helper checks protected
+system packages and revalidates the removal list before running a queued job.
 
 The installer includes Plasma for offline setup. It can download GNOME or LXQt
 during installation. First boot opens onboarding in a temporary Plasma session.

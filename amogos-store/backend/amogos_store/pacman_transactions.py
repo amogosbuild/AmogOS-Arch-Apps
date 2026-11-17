@@ -1,4 +1,4 @@
-# Review Pacman transactions against the current indexes and serialize changes through the privileged worker.
+# Review Pacman transactions with printable flags; --nosave is applied only by the privileged worker.
 from . import pacman_catalog
 from .runtime import StoreError, consume_plan, digest, emit, package_name, run, save_plan, stream, transaction_lock
 
@@ -39,6 +39,9 @@ def additions(targets, repair=False):
 def resolve(request):
     operation=request.get('operation','install')
     name=request.get('id','')
+    full=request.get('fullUninstall',False)
+    if not isinstance(full,bool):
+        raise StoreError('Invalid full uninstall option.')
     repo=request.get('repo','')
     if not isinstance(repo,str):
         raise StoreError('Invalid package repository.')
@@ -49,10 +52,16 @@ def resolve(request):
         local=pacman_catalog.installed()
         if name not in local:
             raise StoreError('This package is not installed.')
-        command=['pacman','-R','--noconfirm','--color','never','--',name]
-        run(['pacman','-R','--print','--print-format','%n','--',name])
-        changes=[dict(id=name,action='remove',fromVersion=local[name],version='',size=0,repo='',automatic=False)]
-        note='The package is removed if no installed package requires it.'
+        flag='-Rns' if full else '-R'
+        command=['pacman',flag,'--noconfirm','--color','never','--',name]
+        result=run(['pacman','-Rs' if full else '-R','--print','--print-format','%n','--',name])
+        removed=sorted(set(line.strip() for line in result.stdout.splitlines() if line.strip()))
+        if name not in removed or any(item not in local for item in removed):
+            raise StoreError('The removal list could not be verified. Review the transaction again.')
+        if PROTECTED.intersection(removed):
+            raise StoreError('This removal would affect a package required by your AmogOS system.')
+        changes=[dict(id=item,action='remove',fromVersion=local[item],version='',size=0,repo='',automatic=item!=name) for item in removed]
+        note=('Remove the package and its unused dependencies. Package-owned configuration files are removed without creating .pacsave backups. Files in your home folder are kept.' if full else 'Remove this package if no installed package requires it. Modified package configuration may be kept as .pacsave files.')
     elif operation in ('upgrade-system','update-selected','install','repair','update'):
         targets=[] if operation in ('upgrade-system','update-selected') else [install_target(name,repo)]
         command, changes=additions(targets,repair=operation=='repair')
@@ -62,7 +71,7 @@ def resolve(request):
     else:
         raise StoreError('Unsupported Pacman operation.')
     changes.sort(key=lambda item:item['id'])
-    return dict(source='pacman',operation=operation,id=name,repo=repo,summary='Update AmogOS 2 Pro (Arch)' if not name else f'{operation.capitalize()} {name}',changes=changes,command=command,note=note,downloadBytes=sum(item['size'] for item in changes),spaceBytes=0,fingerprint=digest([command,changes]))
+    return dict(source='pacman',operation=operation,id=name,repo=repo,fullUninstall=full,summary='Update AmogOS 2 Pro (Arch)' if not name else f'{operation.capitalize()} {name}',changes=changes,command=command,note=note,downloadBytes=sum(item['size'] for item in changes),spaceBytes=0,fingerprint=digest([command,changes]))
 
 
 def plan(request):

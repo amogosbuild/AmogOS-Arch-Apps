@@ -14,9 +14,18 @@ Future<bool> reviewTransaction(
   void Function(String)? onError,
 }) async {
   if (source == 'aur' && operation == 'remove') {
-    return reviewTransaction(context, c, title: title, source: 'pacman',
-        operation: operation, request: {...request, 'source': 'pacman', 'repo': ''}, onError: onError);
+    return reviewTransaction(
+      context,
+      c,
+      title: title,
+      source: 'pacman',
+      operation: operation,
+      request: {...request, 'source': 'pacman', 'repo': ''},
+      onError: onError,
+    );
   }
+  final fullUninstall =
+      operation == 'remove' && request['fullUninstall'] == true;
   Map<String, dynamic> review;
   try {
     if (source == 'appimage') {
@@ -74,6 +83,8 @@ Future<bool> reviewTransaction(
             ? 'Update AmogOS 2 Pro?'
             : operation == 'repair-system'
             ? 'Repair unfinished package installation?'
+            : fullUninstall
+            ? 'Fully uninstall $title?'
             : operation == 'remove'
             ? 'Remove $title?'
             : 'Add $title to the queue?',
@@ -101,8 +112,10 @@ Future<bool> reviewTransaction(
                 ),
               if (review['recipe'] is String) ...[
                 const SizedBox(height: 16),
-                SelectableText(review['recipe'] as String,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 11)),
+                SelectableText(
+                  review['recipe'] as String,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                ),
               ],
               const SizedBox(height: 18),
               Text(
@@ -148,7 +161,11 @@ Future<bool> reviewTransaction(
                                   ),
                                 ),
                                 Text(
-                                  change['version']?.toString() ?? '',
+                                  (change['action'] == 'remove'
+                                              ? change['fromVersion']
+                                              : change['version'])
+                                          ?.toString() ??
+                                      '',
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Theme.of(context)
@@ -169,16 +186,18 @@ Future<bool> reviewTransaction(
                   },
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Download: ${byteSize(review['downloadBytes'] as num?)}',
-                style: const TextStyle(fontSize: 12),
-              ),
-              if (source == 'pacman')
+              if (operation != 'remove') ...[
+                const SizedBox(height: 12),
                 Text(
-                  'Disk space: ${byteSize(review['spaceBytes'] as num?)}',
+                  'Download: ${byteSize(review['downloadBytes'] as num?)}',
                   style: const TextStyle(fontSize: 12),
                 ),
+                if (source == 'pacman')
+                  Text(
+                    'Disk space: ${byteSize(review['spaceBytes'] as num?)}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+              ],
             ],
           ),
         ),
@@ -195,6 +214,8 @@ Future<bool> reviewTransaction(
           child: Text(
             c.preview
                 ? 'Queue preview'
+                : fullUninstall
+                ? 'Queue full uninstall'
                 : operation == 'remove'
                 ? 'Queue removal'
                 : 'Add to queue',

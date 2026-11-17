@@ -270,9 +270,12 @@ class StoreService {
     if (action.endsWith('-plan')) {
       return {
         'source':
-            body['source'] ?? (action.startsWith('pacman') ? 'pacman' : 'flatpak'),
+            body['source'] ??
+            (action.startsWith('pacman') ? 'pacman' : 'flatpak'),
         'id': body['id'],
         'operation': body['operation'],
+        'fullUninstall': body['fullUninstall'] == true,
+        if (body['fullUninstall'] == true) 'note': 'Remove unused dependencies and package configuration without creating .pacsave backups. Files in your home folder are kept.',
         'token': 'preview-token',
         'fingerprint': 'preview',
         'commit': 'preview',

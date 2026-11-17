@@ -408,7 +408,7 @@ class StoreController extends ChangeNotifier {
               : sameFlatpakReview(job.review, fresh);
           if (!unchanged) {
             throw StateError(
-              'This package changed while queued. Review it again before installing.',
+              'This package changed while queued. Review it again before continuing.',
             );
           }
           action = '$prefix-apply';

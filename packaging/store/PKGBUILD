@@ -1,7 +1,7 @@
 # Install the Arch Store bundle with the bounded Pacman helper and desktop launchers.
 pkgname=amogos-arch-store
 pkgver=0.1.0
-pkgrel=3
+pkgrel=4
 pkgdesc='AmogOS Arch App Store for Pacman, AUR, Flatpak and AppImage'
 arch=(x86_64)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
