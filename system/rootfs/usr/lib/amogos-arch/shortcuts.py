@@ -1,4 +1,4 @@
-# Copy the preinstalled app launchers to each desktop without replacing user files.
+# Install and trust desktop shortcuts whose contents match the packaged launchers.
 from pathlib import Path
 import shutil
 import subprocess
@@ -7,31 +7,46 @@ APPLICATIONS = (
     'amogosarch.appstore.desktop',
     'amogos.music.desktop',
     'amogos.notes.desktop',
+    'amogosarch.installer.desktop',
+    'steam.desktop',
+    'amogosarch.steam-big-picture.desktop',
 )
 
 
-def seed_desktop_shortcuts(should_trust):
-    desktop = Path.home() / 'Desktop'
+def desktop_folder():
+    home = Path.home()
     if shutil.which('xdg-user-dir'):
-        destination = subprocess.run(
+        value = subprocess.run(
             ['xdg-user-dir', 'DESKTOP'], capture_output=True, text=True, check=False,
         ).stdout.strip()
-        if destination and Path(destination).is_absolute() and Path(destination) != Path.home():
-            desktop = Path(destination)
-    applications = Path('/usr/share/applications')
+        if value and Path(value).is_absolute() and Path(value) != home:
+            return Path(value)
+    return home / 'Desktop'
+
+
+def seed_desktop_shortcuts(trust_attribute):
+    desktop = desktop_folder()
     desktop.mkdir(parents=True, exist_ok=True)
     for filename in APPLICATIONS:
-        source = applications / filename
+        bundled = Path('/usr/share/applications') / filename
+        if not bundled.is_file():
+            continue
+        skeleton = Path('/etc/skel/Desktop') / filename
+        source = skeleton if skeleton.is_file() else bundled
         target = desktop / filename
-        if not source.is_file() or target.exists() or target.is_symlink():
+        if target.is_symlink():
             continue
         try:
-            with source.open('rb') as original, target.open('xb') as shortcut:
-                shutil.copyfileobj(original, shortcut)
+            content = source.read_bytes()
+            if not target.exists():
+                with target.open('xb') as shortcut:
+                    shortcut.write(content)
+            if not target.is_file() or target.read_bytes() not in (content, bundled.read_bytes()):
+                continue
             target.chmod(0o755)
-            if should_trust and shutil.which('gio'):
+            if trust_attribute and shutil.which('gio'):
                 subprocess.run(
-                    ['gio', 'set', str(target), 'metadata::trusted', 'true'],
+                    ['gio', 'set', str(target), trust_attribute, 'true'],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
                     timeout=5,
                 )

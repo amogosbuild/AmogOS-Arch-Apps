@@ -106,7 +106,8 @@ def lxqt():
 
 handler=kde if 'KDE' in desktop else gnome if 'GNOME' in desktop else lxqt if 'LXQT' in desktop else None
 if handler and os.getuid()!=0:
-    seed_desktop_shortcuts(should_trust='GNOME' in desktop or 'LXQT' in desktop)
+    trust = 'metadata::trusted' if 'GNOME' in desktop else 'metadata::trust' if 'LXQT' in desktop else None
+    seed_desktop_shortcuts(trust)
     if handler():
         marker.parent.mkdir(parents=True,exist_ok=True)
         marker.touch()
