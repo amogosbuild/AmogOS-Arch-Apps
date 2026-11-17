@@ -6,7 +6,8 @@ DESKTOPS={
     'plasma': [],
     'gnome': [
         'gnome-shell','gnome-session','gdm','nautilus','gnome-control-center','gnome-terminal',
-        'gnome-keyring','xdg-desktop-portal-gnome',
+        'gnome-keyring','xdg-desktop-portal-gnome','evolution-data-server',
+        'gnome-shell-extension-desktop-icons-ng',
         'chaotic-aur/gnome-shell-extension-dash-to-dock',
     ],
     'lxqt': [

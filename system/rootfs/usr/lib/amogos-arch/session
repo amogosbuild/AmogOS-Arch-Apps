@@ -6,6 +6,7 @@ import pathlib
 import random
 import subprocess
 import time
+from shortcuts import seed_desktop_shortcuts
 
 home=pathlib.Path.home()
 config=home/'.config'
@@ -64,7 +65,8 @@ def gnome():
         gset('org.gnome.desktop.a11y.interface','high-contrast','true' if settings.get('highContrast') else 'false')
         gset('org.gnome.shell','favorite-apps',"['org.gnome.Nautilus.desktop','firefox.desktop','amogosarch.appstore.desktop','steam.desktop','amogosarch.steam-big-picture.desktop']")
     gset('org.gnome.shell','disable-user-extensions','false')
-    gset('org.gnome.shell','enabled-extensions',"['dash-to-dock@micxgx.gmail.com']")
+    run('gnome-extensions','enable','dash-to-dock@micxgx.gmail.com')
+    run('gnome-extensions','enable','ding@rastersoft.com')
     dock='/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas'
     for key,value in {'dock-position':'BOTTOM','dock-fixed':'true','autohide':'false','intellihide':'false','extend-height':'false','dash-max-icon-size':'48','show-trash':'false'}.items():
         run('gsettings','--schemadir',dock,'set','org.gnome.shell.extensions.dash-to-dock',key,value)
@@ -95,6 +97,8 @@ def lxqt():
 
 
 handler=kde if 'KDE' in desktop else gnome if 'GNOME' in desktop else lxqt if 'LXQT' in desktop else None
-if handler and os.getuid()!=0 and handler():
-    marker.parent.mkdir(parents=True,exist_ok=True)
-    marker.touch()
+if handler and os.getuid()!=0:
+    seed_desktop_shortcuts(should_trust='GNOME' in desktop or 'LXQT' in desktop)
+    if handler():
+        marker.parent.mkdir(parents=True,exist_ok=True)
+        marker.touch()
