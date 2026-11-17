@@ -236,7 +236,7 @@ class Installer:
 
     def _boot(self, medium):
         self.report.emit("bootloader", .88, "Creating your boot menu")
-        prepare_kernels(self.runner, self.target, medium)
+        prepare_kernels(self.runner, self.target)
         if self.plan.get("bootTargets") and not self.plan["esp"]:
             self._validate_boot_targets()
         Bootloader(self.runner, self.target, self.plan, self.report).install()
