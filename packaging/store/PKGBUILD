@@ -1,7 +1,7 @@
 # Install the Arch Store bundle with the bounded Pacman helper and desktop launchers.
 pkgname=amogos-arch-store
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='AmogOS Arch App Store for Pacman, AUR, Flatpak and AppImage'
 arch=(x86_64)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
@@ -24,7 +24,7 @@ package() {
     install -Dm755 "$project/packaging/$pkgname-helper" "$pkgdir/usr/libexec/$pkgname-helper"
     install -Dm644 "$project/packaging/amogosarch.appstore.desktop" "$pkgdir/usr/share/applications/amogosarch.appstore.desktop"
     install -Dm644 "$project/packaging/amogosarch.appstore.policy" "$pkgdir/usr/share/polkit-1/actions/amogosarch.appstore.policy"
-    install -Dm644 "$AMOGOS_APPS_ROOT/system/rootfs/usr/share/pixmaps/amogos-menu.png" "$pkgdir/usr/share/pixmaps/amogosarch.appstore.png"
+    install -Dm644 "$project/packaging/icons/amogosarch.appstore.png" "$pkgdir/usr/share/pixmaps/amogosarch.appstore.png"
     cp -a "$project/third_party/." "$pkgdir/usr/share/licenses/$pkgname/"
     install -m644 "$AMOGOS_APPS_ROOT/ARTWORK-LICENSE.md" "$pkgdir/usr/share/licenses/$pkgname/ARTWORK-LICENSE.md"
 }

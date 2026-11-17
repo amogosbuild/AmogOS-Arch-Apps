@@ -1,7 +1,7 @@
 # Package the shared Plymouth theme, numbered wallpapers, Plasma layout and shell aliases.
 pkgname=amogos-arch-system
 pkgver=2.0.0
-pkgrel=6
+pkgrel=7
 pkgdesc='Persistent AmogOS 2 Pro Arch desktop and boot integration'
 arch=(any)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
