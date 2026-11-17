@@ -5,7 +5,7 @@ import re
 import shutil
 import tempfile
 from .desktops import DESKTOPS, check_network
-from .kernels import prepare_kernels
+from .kernels import MKINITCPIO_CONFIG, prepare_kernels
 from .planner import MIB, fingerprint
 from .runtime import InstallError, Runner, log_directory, private_mounts, require_live
 from .storage import disk_by_path, read_table, shrink_limit
@@ -202,6 +202,7 @@ class Installer:
             "etc/skel/Desktop/amogosarch.installer.desktop",
         ):
             (self.target / name).unlink(missing_ok=True)
+        self.write("etc/mkinitcpio.conf.d/10-amogos.conf", MKINITCPIO_CONFIG)
         self.write("etc/hostname", "amogos-arch\n")
         self.write("etc/locale.conf", "LANG=" + self.request["locale"] + "\n")
         locale_file=self.target / "etc/locale.gen"
@@ -227,12 +228,24 @@ class Installer:
         self.chroot(["/usr/lib/amogos-arch-onboarding/prepare", self.plan["desktop"]],timeout=120)
 
     def _packages(self):
-        desktop_packages=DESKTOPS[self.plan["desktop"]]
-        if self.plan["upgrade"] or desktop_packages:
-            self.report.emit("packages",.72,"Updating Arch packages from the network")
-            self.runner.stream(["chroot",str(self.target),"pacman","-Syu","--noconfirm","--needed",*desktop_packages],lambda line: self.report.emit("packages",.77,line))
-        self.chroot(["pacman","-Dk"],timeout=180)
-        self.report.emit("drivers",.83,"Zen kernel and included firmware are ready")
+        self.report.emit("drivers", .69, "Zen kernel and included firmware are ready")
+        desktop_packages = DESKTOPS[self.plan["desktop"]]
+        online_updates = self.plan["upgrade"] or bool(desktop_packages)
+        if online_updates:
+            self.report.emit("updates", .72, "Updating Arch packages from the network")
+            self.runner.stream(
+                ["chroot", str(self.target), "pacman", "-Syu", "--noconfirm", "--needed", *desktop_packages],
+                lambda line: self.report.emit("updates", .77, line),
+            )
+        self.chroot(["pacman", "-Dk"], timeout=180)
+        if online_updates:
+            self.report.emit("updates", .83, "Arch packages are up to date")
+        else:
+            self.report.emit(
+                "updates", .83,
+                "Online updates skipped. Using the packages included on the ISO.",
+                skipped=True,
+            )
 
     def _boot(self, medium):
         self.report.emit("bootloader", .88, "Creating your boot menu")

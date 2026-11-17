@@ -9,8 +9,10 @@ class InstallationService {
   InstallationService({required this.preview});
   final bool preview;
 
-  Future<Process> _start(String action) =>
-      Process.start('pkexec', ['/usr/libexec/amogos-arch-installer-helper', action]);
+  Future<Process> _start(String action) => Process.start('pkexec', [
+    '/usr/libexec/amogos-arch-installer-helper',
+    action,
+  ]);
 
   Future<String> _errors(Stream<List<int>> stream) =>
       stream.transform(utf8.decoder).fold<String>('', (tail, chunk) {
@@ -95,6 +97,7 @@ class InstallationService {
         ('copy', 'Unpacking AmogOS 2 Pro (Arch)'),
         ('configure', 'Making it yours'),
         ('drivers', 'Setting up hardware support'),
+        ('updates', 'Checking system updates'),
         ('bootloader', 'Adding your boot menu'),
         ('finish', 'A few finishing touches'),
       ];

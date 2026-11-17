@@ -11,7 +11,8 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage>
     with SingleTickerProviderStateMixin {
   late final AnimationController sweep = AnimationController(
-    vsync: this, duration: const Duration(milliseconds: 3250),
+    vsync: this,
+    duration: const Duration(milliseconds: 3250),
   );
 
   @override
@@ -51,53 +52,65 @@ class _WelcomePageState extends State<WelcomePage>
               DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  gradient: RadialGradient(colors: [
-                    colors.primary.withValues(alpha: .17), colors.surface,
-                  ]),
+                  gradient: RadialGradient(
+                    colors: [
+                      colors.primary.withValues(alpha: .17),
+                      colors.surface,
+                    ],
+                  ),
                 ),
               ),
               Positioned.fill(
                 child: IgnorePointer(
                   child: Opacity(
                     opacity: .27,
-                    child: Image.asset('assets/images/boot-character.png',
-                      fit: BoxFit.contain, alignment: Alignment.center),
+                    child: Image.asset(
+                      'assets/images/boot-character.png',
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                    ),
                   ),
                 ),
               ),
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('AmogOS 2 Pro (Arch)', style: theme.textTheme.titleLarge),
-                      const SizedBox(height: 20),
-                      if (MediaQuery.disableAnimationsOf(context))
-                        greeting
-                      else
-                        AnimatedBuilder(
-                          animation: sweep,
-                          child: greeting,
-                          builder: (context, child) {
-                            final shift = sweep.value * 4 - 2;
-                            return ShaderMask(
-                              blendMode: BlendMode.srcIn,
-                              shaderCallback: (rect) => LinearGradient(
-                                begin: Alignment(shift - .7, 0),
-                                end: Alignment(shift + .7, 0),
-                                colors: [
-                                  colors.onSurface.withValues(alpha: .72),
-                                  theme.brightness == Brightness.dark
-                                      ? Colors.white : colors.primary,
-                                  colors.onSurface.withValues(alpha: .72),
-                                ],
-                              ).createShader(rect),
-                              child: child,
-                            );
-                          },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'AmogOS 2 Pro (Arch)',
+                          style: theme.textTheme.titleLarge,
                         ),
-                    ],
+                        const SizedBox(height: 20),
+                        if (MediaQuery.disableAnimationsOf(context))
+                          greeting
+                        else
+                          AnimatedBuilder(
+                            animation: sweep,
+                            child: greeting,
+                            builder: (context, child) {
+                              final shift = sweep.value * 4 - 2;
+                              return ShaderMask(
+                                blendMode: BlendMode.srcIn,
+                                shaderCallback: (rect) => LinearGradient(
+                                  begin: Alignment(shift - .7, 0),
+                                  end: Alignment(shift + .7, 0),
+                                  colors: [
+                                    colors.onSurface.withValues(alpha: .72),
+                                    theme.brightness == Brightness.dark
+                                        ? Colors.white
+                                        : colors.primary,
+                                    colors.onSurface.withValues(alpha: .72),
+                                  ],
+                                ).createShader(rect),
+                                child: child,
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -151,10 +151,11 @@ class InstallEvent {
     this.done = false,
     this.error = false,
     this.warning = false,
+    this.skipped = false,
   });
   final String stage, message;
   final double progress;
-  final bool done, error, warning;
+  final bool done, error, warning, skipped;
   factory InstallEvent.fromJson(Map<String, dynamic> j) => InstallEvent(
     j['stage'] ?? 'install',
     (j['progress'] as num? ?? 0).toDouble(),
@@ -162,6 +163,7 @@ class InstallEvent {
     done: j['done'] == true,
     error: j['error'] == true,
     warning: j['warning'] == true,
+    skipped: j['skipped'] == true,
   );
 }
 

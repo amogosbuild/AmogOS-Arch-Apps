@@ -142,10 +142,13 @@ class InstallPage extends StatelessWidget {
   }
 
   Widget _stage(BuildContext context, String id, String title) {
-    final c = controller,
-        colors = Theme.of(context).colorScheme,
-        active = c.event.stage == id;
-    final done = c.events.any((e) => e.stage == id) && !active;
+    final c = controller, colors = Theme.of(context).colorScheme;
+    final latest = c.event.stage == id
+        ? c.event
+        : c.events.where((event) => event.stage == id).lastOrNull;
+    final skipped = latest?.skipped ?? false;
+    final active = c.event.stage == id && !skipped;
+    final done = latest != null && !active && !skipped;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
@@ -161,7 +164,9 @@ class InstallPage extends StatelessWidget {
             )
           else
             Icon(
-              done
+              skipped
+                  ? Icons.remove_circle_outline_rounded
+                  : done
                   ? Icons.check_circle_rounded
                   : Icons.radio_button_unchecked_rounded,
               size: 17,
@@ -170,7 +175,7 @@ class InstallPage extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              title,
+              skipped ? '$title (skipped)' : title,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: active ? FontWeight.w800 : FontWeight.w500,

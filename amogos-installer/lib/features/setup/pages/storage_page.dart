@@ -362,14 +362,16 @@ class StoragePage extends StatelessWidget {
                       const SizedBox(height: 18),
                       Row(
                         children: [
-                          const Text(
-                            'Space for AmogOS 2 Pro (Arch)',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                          const Expanded(
+                            child: Text(
+                              'Space for AmogOS 2 Pro (Arch)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(width: 12),
                           Text(
                             '${c.rootGiB.round()} GB',
                             style: TextStyle(

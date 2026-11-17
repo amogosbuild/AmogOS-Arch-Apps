@@ -1,7 +1,7 @@
 # Keep the live-only installer independent of the persistent desktop package.
 pkgname=amogos-arch-installer
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='Live installer for AmogOS 2 Pro Arch'
 arch=(x86_64)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'

@@ -1,6 +1,12 @@
 # Restore the packaged Zen kernel and regenerate initramfs for disk boot.
 import shutil
 
+MKINITCPIO_CONFIG = (
+    'HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block plymouth filesystems fsck)\n'
+    'COMPRESSION="zstd"\n'
+    'COMPRESSION_OPTIONS=(-T1 -3)\n'
+)
+
 
 def prepare_kernels(runner, target):
     kernel = target / 'boot/vmlinuz-linux-zen'
@@ -17,5 +23,5 @@ def prepare_kernels(runner, target):
         shutil.copyfile(packaged[0], kernel)
         kernel.chmod(0o644)
     conf = target / 'etc/mkinitcpio.conf.d/10-amogos.conf'
-    conf.write_text('HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block plymouth filesystems fsck)\n')
+    conf.write_text(MKINITCPIO_CONFIG)
     runner.run(['chroot', str(target), 'mkinitcpio', '-p', 'linux-zen'], timeout=1800)
