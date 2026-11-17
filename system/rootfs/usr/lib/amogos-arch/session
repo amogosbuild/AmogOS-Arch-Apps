@@ -62,6 +62,7 @@ def gnome():
     if not marker.exists():
         gset('org.gnome.desktop.interface','color-scheme','prefer-dark' if dark else 'prefer-light')
         gset('org.gnome.desktop.interface','accent-color','teal')
+        gset('org.gnome.desktop.interface','icon-theme','Papirus-Dark' if dark else 'Papirus')
         gset('org.gnome.desktop.interface','text-scaling-factor','1.25' if settings.get('largerText') else '1.0')
         gset('org.gnome.desktop.a11y.interface','high-contrast','true' if settings.get('highContrast') else 'false')
         gset('org.gnome.shell','favorite-apps',"['org.gnome.Nautilus.desktop','firefox.desktop','amogosarch.appstore.desktop','steam.desktop','amogosarch.steam-big-picture.desktop']")
