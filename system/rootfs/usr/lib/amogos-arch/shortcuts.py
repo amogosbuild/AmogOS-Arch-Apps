@@ -16,7 +16,7 @@ def seed_desktop_shortcuts(should_trust):
         destination = subprocess.run(
             ['xdg-user-dir', 'DESKTOP'], capture_output=True, text=True, check=False,
         ).stdout.strip()
-        if destination and Path(destination).is_absolute():
+        if destination and Path(destination).is_absolute() and Path(destination) != Path.home():
             desktop = Path(destination)
     applications = Path('/usr/share/applications')
     desktop.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import ast
 import configparser
 import json
 import os
@@ -65,8 +66,14 @@ def gnome():
         gset('org.gnome.desktop.a11y.interface','high-contrast','true' if settings.get('highContrast') else 'false')
         gset('org.gnome.shell','favorite-apps',"['org.gnome.Nautilus.desktop','firefox.desktop','amogosarch.appstore.desktop','steam.desktop','amogosarch.steam-big-picture.desktop']")
     gset('org.gnome.shell','disable-user-extensions','false')
-    run('gnome-extensions','enable','dash-to-dock@micxgx.gmail.com')
-    run('gnome-extensions','enable','ding@rastersoft.com')
+    raw = subprocess.run(
+        ['gsettings', 'get', 'org.gnome.shell', 'enabled-extensions'],
+        capture_output=True, text=True, check=False, timeout=5,
+    ).stdout.strip().removeprefix('@as ')
+    enabled = ast.literal_eval(raw) if raw else []
+    defaults = ['dash-to-dock@micxgx.gmail.com', 'ding@rastersoft.com']
+    if any(extension not in enabled for extension in defaults):
+        gset('org.gnome.shell', 'enabled-extensions', repr(list(dict.fromkeys(enabled + defaults))))
     dock='/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas'
     for key,value in {'dock-position':'BOTTOM','dock-fixed':'true','autohide':'false','intellihide':'false','extend-height':'false','dash-max-icon-size':'48','show-trash':'false'}.items():
         run('gsettings','--schemadir',dock,'set','org.gnome.shell.extensions.dash-to-dock',key,value)
