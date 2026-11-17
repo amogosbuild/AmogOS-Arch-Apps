@@ -8,6 +8,7 @@ import random
 import subprocess
 import time
 from shortcuts import seed_desktop_shortcuts
+from plasma_defaults import apply_plasma_defaults
 
 home=pathlib.Path.home()
 config=home/'.config'
@@ -42,6 +43,7 @@ def ini(path,values):
 
 
 def kde():
+    apply_plasma_defaults(config, run)
     if not marker.exists():
         scheme='BreezeDark' if dark else 'BreezeLight'
         run('plasma-apply-colorscheme',scheme)

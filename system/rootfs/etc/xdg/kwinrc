@@ -1,0 +1,5 @@
+# Reduce decorative rendering while retaining compositing and desktop accessibility.
+[Plugins]
+blurEnabled=false
+wobblywindowsEnabled=false
+magiclampEnabled=false

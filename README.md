@@ -25,6 +25,24 @@ See [artwork credits and permissions](ARTWORK-LICENSE.md).
 The numbered wallpaper mapping is in
 system/rootfs/usr/share/wallpapers/AmogOSArch/ORIGINALS.
 
+## Plasma memory defaults
+
+The desktop package disables Baloo file indexing, blur, wobbly windows and
+Magic Lamp by default, and starts an empty session instead of reopening apps.
+Compositing, the AmogOS theme, wallpaper changes, accessibility, audio,
+networking and power management remain available.
+
+The same defaults are installed in /etc/xdg and /etc/skel/.config. Existing
+Plasma accounts receive a one-time migration on their next sign-in without
+changing their color scheme. Later choices to enable indexing or effects are
+preserved. Compressed swap uses zstd with a logical size of half of RAM,
+capped at 4 GiB, and allocates memory as needed. A local configuration in
+/etc/systemd/zram-generator.conf.d can override the vendor defaults.
+
+After upgrading amogos-arch-system to 2.0.0-8, reboot once to activate
+compressed swap and the account migration. Idle RAM varies with hardware
+and open applications.
+
 ## Build the packages
 
 Use Flutter 3.47.6 on an x86_64 Linux host with clang, cmake, ninja, pkgconf and
@@ -42,6 +60,7 @@ serves the packages for the
 ## Validate the sources
 
     python3 scripts/check-source.py
+    python3 -m unittest discover -s system/tests
     python3 -m unittest discover -s amogos-store/backend/tests
     python3 -m unittest discover -s amogos-installer/backend/tests
 

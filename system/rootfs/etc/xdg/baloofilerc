@@ -1,0 +1,3 @@
+# Keep file indexing off unless enabled in Plasma File Search settings.
+[Basic Settings]
+Indexing-Enabled=false

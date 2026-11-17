@@ -1,6 +1,9 @@
 #!/bin/sh
 post_install() {
     plymouth-set-default-theme amogos2pro
+    for folder in /etc/fastfetch /usr/share/fastfetch; do
+        [ ! -d "$folder" ] || chmod go-w "$folder"
+    done
     local line='if [ -r /etc/profile.d/amogos-fastfetch.sh ]; then . /etc/profile.d/amogos-fastfetch.sh; fi'
     if ! grep -Fqx "$line" /etc/bash.bashrc; then
         printf '\n%s\n' "$line" >> /etc/bash.bashrc
