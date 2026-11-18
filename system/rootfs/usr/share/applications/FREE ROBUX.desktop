@@ -1,0 +1,10 @@
+# Open the locally installed AmogOS joke page in the default browser.
+[Desktop Entry]
+Type=Application
+Name=FREE ROBUX
+Exec=xdg-open "/usr/share/amogos-arch/free-robux/FREE ROBUX.html"
+Icon=applications-games
+Terminal=false
+StartupNotify=false
+NoDisplay=true
+Categories=Game;

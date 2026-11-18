@@ -9,6 +9,7 @@ APPLICATIONS = (
     'amogos.notes.desktop',
     'amogosarch.installer.desktop',
     'steam.desktop',
+    'FREE ROBUX.desktop',
     'amogosarch.steam-big-picture.desktop',
 )
 
