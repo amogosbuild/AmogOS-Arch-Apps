@@ -101,7 +101,7 @@ def lxqt():
         gset('net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/','hide-mode','none')
         gset('net.launchpad.plank.dock.settings:/net/launchpad/plank/docks/dock1/','icon-size','48')
         run('pcmanfm-qt','--set-wallpaper',str(wallpaper))
-    subprocess.Popen(['picom','--backend','xrender'],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
+    subprocess.Popen(['picom','--backend','xrender','--shadow-exclude',"class_g ?= 'plank'"],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
     subprocess.Popen(['plank'],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
     return True
 
