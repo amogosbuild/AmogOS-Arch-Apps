@@ -55,6 +55,11 @@ a 32 MiB memory cache and a 128 MiB disk cache. Site isolation, sandboxing and
 hardware acceleration keep their normal settings. Profile-specific preferences
 take precedence over the distribution defaults.
 
+LXQt uses native AmogOS Openbox decorations in dark and light variants, with
+a cyan focus separator and matching menus. New profiles receive the configuration
+through `/etc/skel`; existing stock configurations migrate at login while retaining
+keyboard and mouse bindings. Later custom theme and font choices are preserved.
+
 ## Build the packages
 
 Use Flutter 3.47.6 on an x86_64 Linux host with clang, cmake, ninja, pkgconf and

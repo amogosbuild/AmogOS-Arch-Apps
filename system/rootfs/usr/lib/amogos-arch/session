@@ -9,6 +9,7 @@ import subprocess
 import time
 from shortcuts import seed_desktop_shortcuts
 from plasma_defaults import apply_plasma_defaults
+from openbox_defaults import apply_openbox_theme
 
 home=pathlib.Path.home()
 config=home/'.config'
@@ -84,6 +85,8 @@ def gnome():
 
 
 def lxqt():
+    if apply_openbox_theme(config, dark):
+        run('openbox','--reconfigure')
     wallpaper=wallpapers/('5.png' if dark else '6.png')
     if not marker.exists():
         panel=config/'lxqt/panel.conf'
