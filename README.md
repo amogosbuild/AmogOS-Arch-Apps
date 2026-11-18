@@ -49,6 +49,12 @@ After upgrading amogos-arch-system to 2.0.0-8, reboot once to activate
 compressed swap and the account migration. Idle RAM varies with hardware
 and open applications.
 
+Firefox uses overridable defaults with two shared content processes, one
+isolated content process per site, no speculative content-process prelaunch,
+a 32 MiB memory cache and a 128 MiB disk cache. Site isolation, sandboxing and
+hardware acceleration keep their normal settings. Profile-specific preferences
+take precedence over the distribution defaults.
+
 ## Build the packages
 
 Use Flutter 3.47.6 on an x86_64 Linux host with clang, cmake, ninja, pkgconf and
