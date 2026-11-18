@@ -56,7 +56,7 @@ hardware acceleration keep their normal settings. Profile-specific preferences
 take precedence over the distribution defaults.
 
 LXQt uses native AmogOS Openbox decorations in dark and light variants, with
-a cyan focus separator and matching menus. New profiles receive the configuration
+a cyan focus separator, circular window controls and matching menus. New profiles receive the configuration
 through `/etc/skel`; existing stock configurations migrate at login while retaining
 keyboard and mouse bindings. Later custom theme and font choices are preserved.
 

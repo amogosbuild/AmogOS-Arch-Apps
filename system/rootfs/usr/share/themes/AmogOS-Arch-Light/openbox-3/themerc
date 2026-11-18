@@ -29,54 +29,40 @@ window.active.label.text.font: shadow=n
 window.active.handle.bg: Flat Solid
 window.active.handle.bg.color: #e4f2f9
 window.active.grip.bg: Parentrelative
-window.active.button.unpressed.bg: Flat Solid
-window.active.button.unpressed.bg.color: #d3e9f3
-window.active.button.unpressed.image.color: #24536a
-window.active.button.hover.bg: Flat Solid
-window.active.button.hover.bg.color: #b8deec
-window.active.button.hover.image.color: #24536a
-window.active.button.pressed.bg: Flat Solid
-window.active.button.pressed.bg.color: #079bb8
-window.active.button.pressed.image.color: #ffffff
-window.active.button.disabled.bg: Flat Solid
-window.active.button.disabled.bg.color: #f2f5f7
-window.active.button.disabled.image.color: #768894
-window.active.button.toggled.unpressed.bg: Flat Solid
-window.active.button.toggled.unpressed.bg.color: #b8deec
-window.active.button.toggled.unpressed.image.color: #24536a
-window.active.button.toggled.hover.bg: Flat Solid
-window.active.button.toggled.hover.bg.color: #b8deec
-window.active.button.toggled.hover.image.color: #24536a
-window.active.button.toggled.pressed.bg: Flat Solid
-window.active.button.toggled.pressed.bg.color: #079bb8
-window.active.button.toggled.pressed.image.color: #24536a
+window.active.button.unpressed.bg: Parentrelative
+window.active.button.unpressed.image.color: #4a7185
+window.active.button.hover.bg: Parentrelative
+window.active.button.hover.image.color: #117f9e
+window.active.button.pressed.bg: Parentrelative
+window.active.button.pressed.image.color: #095b78
+window.active.button.disabled.bg: Parentrelative
+window.active.button.disabled.image.color: #8ba0ab
+window.active.button.toggled.unpressed.bg: Parentrelative
+window.active.button.toggled.unpressed.image.color: #4a7185
+window.active.button.toggled.hover.bg: Parentrelative
+window.active.button.toggled.hover.image.color: #117f9e
+window.active.button.toggled.pressed.bg: Parentrelative
+window.active.button.toggled.pressed.image.color: #095b78
 window.inactive.label.bg: Parentrelative
 window.inactive.label.text.color: #768894
 window.inactive.label.text.font: shadow=n
 window.inactive.handle.bg: Flat Solid
 window.inactive.handle.bg.color: #f2f5f7
 window.inactive.grip.bg: Parentrelative
-window.inactive.button.unpressed.bg: Flat Solid
-window.inactive.button.unpressed.bg.color: #f2f5f7
-window.inactive.button.unpressed.image.color: #768894
-window.inactive.button.hover.bg: Flat Solid
-window.inactive.button.hover.bg.color: #f2f5f7
-window.inactive.button.hover.image.color: #768894
-window.inactive.button.pressed.bg: Flat Solid
-window.inactive.button.pressed.bg.color: #f2f5f7
-window.inactive.button.pressed.image.color: #ffffff
-window.inactive.button.disabled.bg: Flat Solid
-window.inactive.button.disabled.bg.color: #f2f5f7
-window.inactive.button.disabled.image.color: #768894
-window.inactive.button.toggled.unpressed.bg: Flat Solid
-window.inactive.button.toggled.unpressed.bg.color: #f2f5f7
-window.inactive.button.toggled.unpressed.image.color: #768894
-window.inactive.button.toggled.hover.bg: Flat Solid
-window.inactive.button.toggled.hover.bg.color: #f2f5f7
-window.inactive.button.toggled.hover.image.color: #768894
-window.inactive.button.toggled.pressed.bg: Flat Solid
-window.inactive.button.toggled.pressed.bg.color: #f2f5f7
-window.inactive.button.toggled.pressed.image.color: #768894
+window.inactive.button.unpressed.bg: Parentrelative
+window.inactive.button.unpressed.image.color: #8ba0ab
+window.inactive.button.hover.bg: Parentrelative
+window.inactive.button.hover.image.color: #117f9e
+window.inactive.button.pressed.bg: Parentrelative
+window.inactive.button.pressed.image.color: #095b78
+window.inactive.button.disabled.bg: Parentrelative
+window.inactive.button.disabled.image.color: #8ba0ab
+window.inactive.button.toggled.unpressed.bg: Parentrelative
+window.inactive.button.toggled.unpressed.image.color: #8ba0ab
+window.inactive.button.toggled.hover.bg: Parentrelative
+window.inactive.button.toggled.hover.image.color: #117f9e
+window.inactive.button.toggled.pressed.bg: Parentrelative
+window.inactive.button.toggled.pressed.image.color: #095b78
 menu.title.bg: Flat Solid
 menu.title.bg.color: #f0faff
 menu.title.text.color: #143648
