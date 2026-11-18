@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 import os
 import pathlib
-import subprocess
-import time
+from session_cleanup import stop_temporary_session
 from state import ROOT, SDDM, SESSIONS, TEMP_HOME, TEMP_USER, account, atomic, autologin, command, read, record
 
 if os.geteuid()!=0:
@@ -23,16 +22,15 @@ temporary=account(TEMP_USER)
 if temporary:
     if temporary.pw_uid!=handoff.get('uid') or temporary.pw_dir!=TEMP_HOME:
         raise SystemExit('The temporary account no longer matches the onboarding session.')
-    subprocess.run(['loginctl','terminate-user',str(temporary.pw_uid)],check=False)
-    for attempt in range(15):
-        result=subprocess.run(['pgrep','-u',str(temporary.pw_uid)],stdout=subprocess.DEVNULL,check=False)
-        if result.returncode!=0:
-            break
-        time.sleep(1)
-    command('userdel','--remove',TEMP_USER)
+    command('systemctl','stop','sddm.service')
+    try:
+        stop_temporary_session(temporary.pw_uid)
+        command('userdel','--remove',TEMP_USER)
+    except Exception:
+        command('systemctl','--no-block','start','sddm.service')
+        raise
 (SDDM/'60-amogos-onboarding.conf').unlink(missing_ok=True)
 record(ROOT/'completed.json',{'username':handoff['username']})
 for name in ('pending.json','creating.json','handoff.json'):
     (ROOT/name).unlink(missing_ok=True)
-if subprocess.run(['systemctl','is-active','--quiet','sddm.service'],check=False).returncode==0:
-    command('systemctl','--no-block','restart','sddm.service')
+command('systemctl','--no-block','restart','sddm.service')

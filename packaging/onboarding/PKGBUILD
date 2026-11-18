@@ -1,7 +1,7 @@
 # Install the Flutter onboarding app and its narrowly scoped privileged handoff.
 pkgname=amogos-arch-onboarding
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='First-boot account and desktop setup for AmogOS Arch'
 arch=(x86_64)
 url='https://github.com/amogosbuild/AmogOS-Arch-Apps'
@@ -15,7 +15,7 @@ package() {
     install -d "$destination/app"
     cp -a "$project/build/linux/x64/release/bundle/." "$destination/app/"
     install -m755 "$project/backend/"{prepare,finish,cleanup,start} "$destination/"
-    install -m644 "$project/backend/state.py" "$destination/state.py"
+    install -m644 "$project/backend/"{state,session_cleanup}.py "$destination/"
     install -Dm644 "$project/packaging/systemd/$pkgname-finish.service" "$pkgdir/usr/lib/systemd/system/$pkgname-finish.service"
     install -Dm644 "$project/packaging/polkit/amogosarch.onboarding.policy" "$pkgdir/usr/share/polkit-1/actions/amogosarch.onboarding.policy"
     install -Dm644 "$project/packaging/polkit/50-amogos-arch-onboarding.rules" "$pkgdir/usr/share/polkit-1/rules.d/50-amogos-arch-onboarding.rules"
